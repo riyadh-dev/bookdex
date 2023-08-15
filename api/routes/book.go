@@ -1,9 +1,8 @@
 package routes
 
 import (
-	"rest-api/api/handlers"
-
 	"github.com/gofiber/fiber/v2"
+	"github.com/riyadh-dev/go-rest-api-demo/api/handlers"
 )
 
 func BookRouter(app fiber.Router) {

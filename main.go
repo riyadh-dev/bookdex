@@ -2,13 +2,13 @@ package main
 
 import (
 	"log"
-	"rest-api/api/routes"
-	"rest-api/database"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
+	"github.com/riyadh-dev/go-rest-api-demo/api/routes"
+	"github.com/riyadh-dev/go-rest-api-demo/database"
 )
 
 func main() {

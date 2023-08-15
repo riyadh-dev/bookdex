@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"context"
-	"rest-api/api/models"
-	"rest-api/database"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/riyadh-dev/go-rest-api-demo/api/models"
+	"github.com/riyadh-dev/go-rest-api-demo/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
