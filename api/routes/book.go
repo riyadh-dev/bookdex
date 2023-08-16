@@ -5,7 +5,7 @@ import (
 	"github.com/riyadh-dev/go-rest-api-demo/api/handlers"
 )
 
-func BookRouter(app fiber.Router) {
+func AddBookRouter(app fiber.Router) {
 	router := app.Group("/books")
 
 	router.Get("/", handlers.GetBooks)
