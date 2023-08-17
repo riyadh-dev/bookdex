@@ -9,7 +9,11 @@ import (
 	"go.uber.org/fx"
 )
 
-func NewDBConnection(lifecycle fx.Lifecycle, env *config.Env) *mongo.Database {
+var FxModule = fx.Options(
+	fx.Provide(newDBConnection),
+)
+
+func newDBConnection(lifecycle fx.Lifecycle, env *config.Env) *mongo.Database {
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(env.MONGODB_URI))
 
 	db := client.Database(env.DB_NAME)

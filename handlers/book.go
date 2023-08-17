@@ -15,7 +15,7 @@ type Books struct {
 	dbConnection *mongo.Database
 }
 
-func NewBooks(dbConnection *mongo.Database) *Books {
+func newBooks(dbConnection *mongo.Database) *Books {
 	return &Books{dbConnection: dbConnection}
 }
 

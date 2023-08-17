@@ -12,7 +12,7 @@ type Env struct {
 	DB_NAME     string
 }
 
-func NewEnv() *Env {
+func newEnv() *Env {
 	if os.Getenv("GO_ENV") != "production" {
 		if err := godotenv.Load(); err != nil {
 			panic(err)
