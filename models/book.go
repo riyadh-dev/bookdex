@@ -8,12 +8,12 @@ type Book struct {
 	Author string             `json:"author"`
 }
 
-type InsertBookRequest struct {
+type InsertBookInput struct {
 	Title  string `json:"title"`
 	Author string `json:"author"`
 }
 
-type UpdateBookRequest struct {
+type UpdateBookInput struct {
 	Title  string `json:"title,omitempty" bson:"title,omitempty"`
 	Author string `json:"author,omitempty" bson:"author,omitempty"`
 }

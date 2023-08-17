@@ -2,36 +2,27 @@ package database
 
 import (
 	"context"
-	"errors"
-	"os"
 
+	"github.com/riyadh-dev/go-rest-api-demo/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/fx"
 )
 
-var db *mongo.Database
+func NewDBConnection(lifecycle fx.Lifecycle, env *config.Env) *mongo.Database {
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(env.MONGODB_URI))
 
-func ConnectDB() error {
-	uri := os.Getenv("MONGODB_URI")
-	if uri == "" {
-		return errors.New("You must set your 'MONGODB_URI' environment variable.")
-	}
+	db := client.Database(env.DB_NAME)
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(uri))
-	if err != nil {
-		return err
-	}
+	lifecycle.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			return err
+		},
+		OnStop: func(ctx context.Context) error {
+			err := db.Client().Disconnect(context.Background())
+			return err
+		},
+	})
 
-	db = client.Database("go-rest-api")
-
-	return nil
-}
-
-func DisconnectDB() error {
-	err := db.Client().Disconnect(context.Background())
-	return err
-}
-
-func GetCollection(name string) *mongo.Collection {
-	return db.Collection(name)
+	return db
 }

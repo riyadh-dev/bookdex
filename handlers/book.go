@@ -5,14 +5,22 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/riyadh-dev/go-rest-api-demo/api/models"
-	"github.com/riyadh-dev/go-rest-api-demo/database"
+	"github.com/riyadh-dev/go-rest-api-demo/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetBooks(ctx *fiber.Ctx) error {
-	cursor, err := database.GetCollection("books").Find(context.TODO(), bson.D{})
+type Books struct {
+	dbConnection *mongo.Database
+}
+
+func NewBooks(dbConnection *mongo.Database) *Books {
+	return &Books{dbConnection: dbConnection}
+}
+
+func (b *Books) GetBooks(ctx *fiber.Ctx) error {
+	cursor, err := b.dbConnection.Collection("books").Find(context.TODO(), bson.D{})
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}
@@ -26,7 +34,7 @@ func GetBooks(ctx *fiber.Ctx) error {
 	return ctx.JSON(books)
 }
 
-func GetBook(ctx *fiber.Ctx) error {
+func (b *Books) GetBook(ctx *fiber.Ctx) error {
 	id, err := primitive.ObjectIDFromHex(ctx.Params("id"))
 	if err != nil {
 		panic("Invalid id")
@@ -34,7 +42,7 @@ func GetBook(ctx *fiber.Ctx) error {
 
 	var book models.Book
 	filter := bson.M{"_id": id}
-	err = database.GetCollection("books").FindOne(context.TODO(), filter).Decode(&book)
+	err = b.dbConnection.Collection("books").FindOne(context.TODO(), filter).Decode(&book)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return fiber.ErrNotFound
@@ -45,14 +53,14 @@ func GetBook(ctx *fiber.Ctx) error {
 	return ctx.JSON(book)
 }
 
-func CreateBook(ctx *fiber.Ctx) error {
-	var requestBody models.InsertBookRequest
+func (b *Books) CreateBook(ctx *fiber.Ctx) error {
+	var requestBody models.InsertBookInput
 	err := ctx.BodyParser(&requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
 
-	result, err := database.GetCollection("books").InsertOne(context.TODO(), requestBody)
+	result, err := b.dbConnection.Collection("books").InsertOne(context.TODO(), requestBody)
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}
@@ -62,19 +70,19 @@ func CreateBook(ctx *fiber.Ctx) error {
 	})
 }
 
-func UpdateBook(ctx *fiber.Ctx) error {
+func (b *Books) UpdateBook(ctx *fiber.Ctx) error {
 	id, err := primitive.ObjectIDFromHex(ctx.Params("id"))
 	if err != nil {
 		panic("Invalid id")
 	}
 
-	requestBody := new(models.UpdateBookRequest)
+	requestBody := new(models.UpdateBookInput)
 	err = ctx.BodyParser(&requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
 
-	_, err = database.GetCollection("books").UpdateByID(context.TODO(), id, bson.M{"$set": requestBody})
+	_, err = b.dbConnection.Collection("books").UpdateByID(context.TODO(), id, bson.M{"$set": requestBody})
 	if err != nil {
 		log.Println(err)
 		return fiber.ErrInternalServerError
@@ -83,14 +91,14 @@ func UpdateBook(ctx *fiber.Ctx) error {
 	return ctx.SendString("updated")
 }
 
-func DeleteBook(ctx *fiber.Ctx) error {
+func (b *Books) DeleteBook(ctx *fiber.Ctx) error {
 	id, err := primitive.ObjectIDFromHex(ctx.Params("id"))
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
 
 	filter := bson.M{"_id": id}
-	_, err = database.GetCollection("books").DeleteOne(context.TODO(), filter)
+	_, err = b.dbConnection.Collection("books").DeleteOne(context.TODO(), filter)
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}

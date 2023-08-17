@@ -1,38 +1,31 @@
 package main
 
 import (
-	"os"
+	"context"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/riyadh-dev/go-rest-api-demo/api/routes"
 	"github.com/riyadh-dev/go-rest-api-demo/config"
 	"github.com/riyadh-dev/go-rest-api-demo/database"
+	"github.com/riyadh-dev/go-rest-api-demo/handlers"
+	"go.uber.org/fx"
 )
 
 func main() {
-	err := run()
-	if err != nil {
-		panic(err)
-	}
-
+	fx.New(
+		fx.Provide(
+			config.NewEnv,
+			database.NewDBConnection,
+			handlers.NewBooks,
+			NewFiberApp,
+		),
+		fx.Invoke(InitServer, RegisterHandlers),
+	).Run()
 }
 
-func run() error {
-	err := config.LoadEnv()
-	if err != nil {
-		return err
-	}
-
-	err = database.ConnectDB()
-	if err != nil {
-		return err
-	}
-
-	defer database.DisconnectDB()
-
+func NewFiberApp(lifecycle fx.Lifecycle) *fiber.App {
 	app := fiber.New(fiber.Config{
 		JSONEncoder: sonic.Marshal,
 		JSONDecoder: sonic.Unmarshal,
@@ -41,14 +34,32 @@ func run() error {
 	app.Use(logger.New())
 	app.Use(recover.New())
 
-	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.SendString("OK")
+	return app
+}
+
+func RegisterHandlers(app *fiber.App, booksHandlers *handlers.Books) {
+	api := app.Group("/api")
+
+	api.Get("/api", func(c *fiber.Ctx) error {
+		return c.SendString("Heath Check OK")
 	})
 
-	api := app.Group("/api")
-	routes.AddBookRouter(api)
+	booksRouter := api.Group("/books")
+	booksRouter.Post("/", booksHandlers.CreateBook)
+	booksRouter.Get("/", booksHandlers.GetBooks)
+	booksRouter.Get("/:id", booksHandlers.GetBook)
+	booksRouter.Put("/:id", booksHandlers.UpdateBook)
+	booksRouter.Delete("/:id", booksHandlers.DeleteBook)
+}
 
-	app.Listen(":" + os.Getenv("PORT"))
-
-	return nil
+func InitServer(lifecycle fx.Lifecycle, app *fiber.App, env *config.Env) {
+	lifecycle.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			go app.Listen(":" + env.PORT)
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			return app.Shutdown()
+		},
+	})
 }
