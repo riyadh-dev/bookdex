@@ -17,7 +17,7 @@ var FxModule = fx.Options(
 	fx.Invoke(registerHandlers, initServer),
 )
 
-func newFiberApp(lifecycle fx.Lifecycle) *fiber.App {
+func newFiberApp(lifecycle fx.Lifecycle /*env *config.Env*/) *fiber.App {
 	app := fiber.New(fiber.Config{
 		JSONEncoder: sonic.Marshal,
 		JSONDecoder: sonic.Unmarshal,
@@ -26,22 +26,36 @@ func newFiberApp(lifecycle fx.Lifecycle) *fiber.App {
 	app.Use(logger.New())
 	app.Use(recover.New())
 
+	//not working currently
+	/*app.Use(encryptcookie.New(encryptcookie.Config{
+		Key: "secret-thirty-2-character-string",
+	}))*/
+
 	return app
 }
 
-func registerHandlers(app *fiber.App, booksHandlers *handlers.Books) {
+func registerHandlers(
+	app *fiber.App,
+	booksHandlers *handlers.Books,
+	authHandlers *handlers.Auth,
+	//authMiddleware *middleware.Auth,
+) {
 	api := app.Group("/api")
 
-	api.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Heath Check OK")
+	api.Get("/", func(ctx *fiber.Ctx) error {
+		return ctx.SendString("Heath Check OK")
 	})
 
+	authRouter := api.Group("/auth")
+	authRouter.Post("/sign-up", authHandlers.SignUp)
+	authRouter.Post("/sign-in", authHandlers.SignIn)
+
 	booksRouter := api.Group("/books")
-	booksRouter.Post("/", booksHandlers.CreateBook)
-	booksRouter.Get("/", booksHandlers.GetBooks)
-	booksRouter.Get("/:id", booksHandlers.GetBook)
-	booksRouter.Put("/:id", booksHandlers.UpdateBook)
-	booksRouter.Delete("/:id", booksHandlers.DeleteBook)
+	booksRouter.Post("/", booksHandlers.Create)
+	booksRouter.Get("/", booksHandlers.GetAll)
+	booksRouter.Get("/:id", booksHandlers.GetById)
+	booksRouter.Put("/:id", booksHandlers.Update)
+	booksRouter.Delete("/:id", booksHandlers.Delete)
 }
 
 func initServer(lifecycle fx.Lifecycle, app *fiber.App, env *config.Env) {

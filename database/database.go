@@ -10,11 +10,14 @@ import (
 )
 
 var FxModule = fx.Options(
-	fx.Provide(newDBConnection),
+	fx.Provide(newDataBase),
 )
 
-func newDBConnection(lifecycle fx.Lifecycle, env *config.Env) *mongo.Database {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(env.MONGODB_URI))
+func newDataBase(lifecycle fx.Lifecycle, env *config.Env) *mongo.Database {
+	client, err := mongo.Connect(
+		context.Background(),
+		options.Client().ApplyURI(env.MONGODB_URI),
+	)
 
 	db := client.Database(env.DB_NAME)
 
