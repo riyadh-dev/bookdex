@@ -2,16 +2,24 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/riyadh-dev/go-rest-api-demo/config"
 	"github.com/riyadh-dev/go-rest-api-demo/models"
 	"github.com/riyadh-dev/go-rest-api-demo/storage"
 )
 
 type Books struct {
 	booksStorage *storage.Books
+	customErrors *config.CustomErrors
 }
 
-func newBooks(booksStorage *storage.Books) *Books {
-	return &Books{booksStorage: booksStorage}
+func newBooks(
+	booksStorage *storage.Books,
+	customErrors *config.CustomErrors,
+) *Books {
+	return &Books{
+		booksStorage: booksStorage,
+		customErrors: customErrors,
+	}
 }
 
 func (b *Books) GetAll(ctx *fiber.Ctx) error {
@@ -28,11 +36,10 @@ func (b *Books) GetAll(ctx *fiber.Ctx) error {
 func (b *Books) GetById(ctx *fiber.Ctx) error {
 	book, err := b.booksStorage.GetById(ctx.Params("id"))
 	if err != nil {
-		//TODO look into other ways to not use magic strings
-		switch err.Error() {
-		case "not found":
+		switch err {
+		case b.customErrors.ErrNotFound:
 			return fiber.ErrNotFound
-		case "invalid id":
+		case b.customErrors.ErrInvalidId:
 			return fiber.ErrBadRequest
 		default:
 			return fiber.ErrInternalServerError
@@ -66,11 +73,10 @@ func (b *Books) Update(ctx *fiber.Ctx) error {
 
 	err = b.booksStorage.Update(ctx.Params("id"), requestBody)
 	if err != nil {
-		//TODO look into other ways to not use magic strings
-		switch err.Error() {
-		case "not found":
+		switch err {
+		case b.customErrors.ErrNotFound:
 			return fiber.ErrNotFound
-		case "invalid id":
+		case b.customErrors.ErrInvalidId:
 			return fiber.ErrBadRequest
 		default:
 			return fiber.ErrInternalServerError
@@ -83,11 +89,10 @@ func (b *Books) Update(ctx *fiber.Ctx) error {
 func (b *Books) Delete(ctx *fiber.Ctx) error {
 	err := b.booksStorage.Delete(ctx.Params("id"))
 	if err != nil {
-		//TODO look into other ways to not use magic strings
-		switch err.Error() {
-		case "not found":
+		switch err {
+		case b.customErrors.ErrNotFound:
 			return fiber.ErrNotFound
-		case "invalid id":
+		case b.customErrors.ErrInvalidId:
 			return fiber.ErrBadRequest
 		default:
 			return fiber.ErrInternalServerError

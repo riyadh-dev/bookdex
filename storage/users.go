@@ -27,7 +27,8 @@ func (u *Users) Create(input *models.InsertUserInput) (string, error) {
 
 func (u *Users) GetByUsername(username string) (*models.User, error) {
 	var user = new(models.User)
-	err := u.dbColl.FindOne(context.Background(), bson.M{"username": username}).Decode(user)
+	err := u.dbColl.FindOne(context.Background(), bson.M{"username": username}).
+		Decode(user)
 	if err != nil {
 		return nil, err
 	}

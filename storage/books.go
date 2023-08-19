@@ -2,8 +2,8 @@ package storage
 
 import (
 	"context"
-	"errors"
 
+	"github.com/riyadh-dev/go-rest-api-demo/config"
 	"github.com/riyadh-dev/go-rest-api-demo/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,11 +11,15 @@ import (
 )
 
 type Books struct {
-	dbColl *mongo.Collection
+	dbColl       *mongo.Collection
+	customErrors *config.CustomErrors
 }
 
-func newBooks(db *mongo.Database) *Books {
-	return &Books{dbColl: db.Collection("books")}
+func newBooks(db *mongo.Database, customErrors *config.CustomErrors) *Books {
+	return &Books{
+		dbColl:       db.Collection("books"),
+		customErrors: customErrors,
+	}
 }
 
 func (b *Books) GetAll() (*[]models.Book, error) {
@@ -36,7 +40,7 @@ func (b *Books) GetAll() (*[]models.Book, error) {
 func (b *Books) GetById(id string) (*models.Book, error) {
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, errors.New("invalid id")
+		return nil, b.customErrors.ErrInvalidId
 	}
 
 	var book = new(models.Book)
@@ -44,7 +48,7 @@ func (b *Books) GetById(id string) (*models.Book, error) {
 		Decode(book)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
-			return nil, errors.New("not found")
+			return nil, b.customErrors.ErrNotFound
 		}
 		return nil, err
 	}
@@ -63,7 +67,7 @@ func (b *Books) Create(input *models.InsertBookInput) (string, error) {
 func (b *Books) Update(id string, input *models.UpdateBookInput) error {
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return errors.New("invalid id")
+		return b.customErrors.ErrInvalidId
 	}
 
 	result, err := b.dbColl.UpdateOne(
@@ -72,7 +76,7 @@ func (b *Books) Update(id string, input *models.UpdateBookInput) error {
 		bson.M{"$set": input},
 	)
 	if result.ModifiedCount == 0 {
-		return errors.New("not found")
+		return b.customErrors.ErrNotFound
 	}
 
 	return err
@@ -81,7 +85,7 @@ func (b *Books) Update(id string, input *models.UpdateBookInput) error {
 func (b *Books) Delete(id string) error {
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return errors.New("invalid id")
+		return b.customErrors.ErrInvalidId
 	}
 
 	result, err := b.dbColl.DeleteOne(
@@ -89,7 +93,7 @@ func (b *Books) Delete(id string) error {
 		bson.M{"_id": objectId},
 	)
 	if result.DeletedCount == 0 {
-		return errors.New("not found")
+		return b.customErrors.ErrNotFound
 	}
 
 	return err
