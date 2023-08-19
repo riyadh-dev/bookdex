@@ -83,7 +83,7 @@ func (b *Books) Update(ctx *fiber.Ctx) error {
 		}
 	}
 
-	return ctx.SendString("updated")
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
 func (b *Books) Delete(ctx *fiber.Ctx) error {
@@ -99,5 +99,5 @@ func (b *Books) Delete(ctx *fiber.Ctx) error {
 		}
 	}
 
-	return ctx.SendString("deleted")
+	return ctx.SendStatus(fiber.StatusOK)
 }
