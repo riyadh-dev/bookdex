@@ -5,7 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach to Process",
+            "name": "Launch",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "main.go",
+            "console": "integratedTerminal",
+            "output": "tmp\\debug"
+        },
+        {
+            "name": "Attach",
             "type": "go",
             "request": "attach",
             "mode": "local",
