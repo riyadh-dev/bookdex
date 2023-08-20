@@ -38,10 +38,8 @@ func (a *Auth) SignUp(ctx *fiber.Ctx) error {
 		return fiber.ErrInternalServerError
 	}
 
-	id, err := a.usersStorage.Create(&models.InsertUserInput{
-		Username: requestBody.Username,
-		Password: string(hashedPassword),
-	})
+	requestBody.Password = string(hashedPassword)
+	id, err := a.usersStorage.Create(&requestBody)
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}

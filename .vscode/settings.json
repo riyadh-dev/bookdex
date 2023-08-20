@@ -7,6 +7,7 @@
         "godotenv",
         "gofiber",
         "joho",
+        "jwtware",
         "mongodb",
         "riyadh",
         "uber"

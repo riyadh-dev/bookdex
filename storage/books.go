@@ -75,7 +75,7 @@ func (b *Books) Update(id string, input *models.UpdateBookInput) error {
 		bson.M{"_id": objectId},
 		bson.M{"$set": input},
 	)
-	if result.ModifiedCount == 0 {
+	if result.MatchedCount == 0 {
 		return b.customErrors.ErrNotFound
 	}
 

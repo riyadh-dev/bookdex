@@ -10,15 +10,18 @@ import (
 type Books struct {
 	booksStorage *storage.Books
 	customErrors *config.CustomErrors
+	validator    *config.Validator
 }
 
 func newBooks(
 	booksStorage *storage.Books,
 	customErrors *config.CustomErrors,
+	validator *config.Validator,
 ) *Books {
 	return &Books{
 		booksStorage: booksStorage,
 		customErrors: customErrors,
+		validator:    validator,
 	}
 }
 
@@ -54,6 +57,14 @@ func (b *Books) Create(ctx *fiber.Ctx) error {
 	err := ctx.BodyParser(&requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
+	}
+
+	err = b.validator.Validate(&requestBody)
+	if err != nil {
+		return &fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: err.Error(),
+		}
 	}
 
 	id, err := b.booksStorage.Create(&requestBody)
