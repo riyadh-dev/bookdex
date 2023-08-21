@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 
-	"github.com/riyadh-dev/go-rest-api-demo/config"
+	"github.com/riyadh-dev/bookdex/api/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/fx"

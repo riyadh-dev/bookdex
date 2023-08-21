@@ -3,7 +3,7 @@ package middleware
 import (
 	jwtware "github.com/gofiber/contrib/jwt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/riyadh-dev/go-rest-api-demo/config"
+	"github.com/riyadh-dev/bookdex/api/config"
 )
 
 type Auth struct {

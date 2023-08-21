@@ -5,10 +5,12 @@ import (
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/riyadh-dev/go-rest-api-demo/config"
-	"github.com/riyadh-dev/go-rest-api-demo/handlers"
+	"github.com/riyadh-dev/bookdex/api/config"
+	"github.com/riyadh-dev/bookdex/api/handlers"
+	"github.com/riyadh-dev/bookdex/api/middleware"
 	"go.uber.org/fx"
 )
 
@@ -17,7 +19,7 @@ var FxModule = fx.Options(
 	fx.Invoke(registerHandlers, initServer),
 )
 
-func newFiberApp(lifecycle fx.Lifecycle /*env *config.Env*/) *fiber.App {
+func newFiberApp(lifecycle fx.Lifecycle, env *config.Env) *fiber.App {
 	app := fiber.New(fiber.Config{
 		JSONEncoder: sonic.Marshal,
 		JSONDecoder: sonic.Unmarshal,
@@ -25,11 +27,9 @@ func newFiberApp(lifecycle fx.Lifecycle /*env *config.Env*/) *fiber.App {
 
 	app.Use(logger.New())
 	app.Use(recover.New())
-
-	//not working currently
-	/*app.Use(encryptcookie.New(encryptcookie.Config{
-		Key: "secret-thirty-2-character-string",
-	}))*/
+	app.Use(encryptcookie.New(encryptcookie.Config{
+		Key: env.COOKIE_SECRET,
+	}))
 
 	return app
 }
@@ -38,7 +38,7 @@ func registerHandlers(
 	app *fiber.App,
 	booksHandlers *handlers.Books,
 	authHandlers *handlers.Auth,
-	//authMiddleware *middleware.Auth,
+	authMiddleware *middleware.Auth,
 ) {
 	api := app.Group("/api")
 
@@ -51,8 +51,8 @@ func registerHandlers(
 	authRouter.Post("/sign-in", authHandlers.SignIn)
 
 	booksRouter := api.Group("/books")
-	booksRouter.Post("/", booksHandlers.Create)
-	booksRouter.Get("/", booksHandlers.GetAll)
+	booksRouter.Post("/", authMiddleware.IsAuth(), booksHandlers.Create)
+	booksRouter.Get("/", authMiddleware.IsAuth(), booksHandlers.GetAll)
 	booksRouter.Get("/:id", booksHandlers.GetById)
 	booksRouter.Put("/:id", booksHandlers.Update)
 	booksRouter.Delete("/:id", booksHandlers.Delete)

@@ -5,20 +5,26 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/riyadh-dev/go-rest-api-demo/config"
-	"github.com/riyadh-dev/go-rest-api-demo/models"
-	"github.com/riyadh-dev/go-rest-api-demo/storage"
+	"github.com/riyadh-dev/bookdex/api/config"
+	"github.com/riyadh-dev/bookdex/api/models"
+	"github.com/riyadh-dev/bookdex/api/storage"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Auth struct {
 	env          *config.Env
+	validator    *config.Validator
 	usersStorage *storage.Users
 }
 
-func newAuth(env *config.Env, usersStorage *storage.Users) *Auth {
+func newAuth(
+	env *config.Env,
+	validator *config.Validator,
+	usersStorage *storage.Users,
+) *Auth {
 	return &Auth{
 		env:          env,
+		validator:    validator,
 		usersStorage: usersStorage,
 	}
 }
@@ -28,6 +34,14 @@ func (a *Auth) SignUp(ctx *fiber.Ctx) error {
 	err := ctx.BodyParser(&requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
+	}
+
+	err = a.validator.Validate(&requestBody)
+	if err != nil {
+		return &fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: err.Error(),
+		}
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(
@@ -50,10 +64,18 @@ func (a *Auth) SignUp(ctx *fiber.Ctx) error {
 }
 
 func (a *Auth) SignIn(ctx *fiber.Ctx) error {
-	var requestBody models.InsertUserInput
+	var requestBody models.SignInInput
 	err := ctx.BodyParser(&requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
+	}
+
+	err = a.validator.Validate(&requestBody)
+	if err != nil {
+		return &fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: err.Error(),
+		}
 	}
 
 	user, err := a.usersStorage.GetByUsername(requestBody.Username)

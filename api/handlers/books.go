@@ -1,10 +1,14 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/riyadh-dev/go-rest-api-demo/config"
-	"github.com/riyadh-dev/go-rest-api-demo/models"
-	"github.com/riyadh-dev/go-rest-api-demo/storage"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/riyadh-dev/bookdex/api/config"
+	"github.com/riyadh-dev/bookdex/api/models"
+	"github.com/riyadh-dev/bookdex/api/storage"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Books struct {
@@ -26,7 +30,9 @@ func newBooks(
 }
 
 func (b *Books) GetAll(ctx *fiber.Ctx) error {
-	//userId := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)["userId"]
+	userId := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)["userId"]
+
+	fmt.Printf("userId: %v\n", userId)
 
 	books, err := b.booksStorage.GetAll()
 	if err != nil {
@@ -53,13 +59,26 @@ func (b *Books) GetById(ctx *fiber.Ctx) error {
 }
 
 func (b *Books) Create(ctx *fiber.Ctx) error {
-	var requestBody models.InsertBookInput
+	var requestBody models.InsertBookReqInput
 	err := ctx.BodyParser(&requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
 
-	err = b.validator.Validate(&requestBody)
+	submitterId := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)["userId"].(string)
+	objectId, err := primitive.ObjectIDFromHex(submitterId)
+	if err != nil {
+		return fiber.ErrBadRequest
+	}
+
+	storageInput := &models.InsertBookStorageInput{
+		Title:  requestBody.Title,
+		Author: requestBody.Author,
+
+		SubmitterID: objectId,
+	}
+
+	err = b.validator.Validate(storageInput)
 	if err != nil {
 		return &fiber.Error{
 			Code:    fiber.ErrBadRequest.Code,
@@ -67,7 +86,7 @@ func (b *Books) Create(ctx *fiber.Ctx) error {
 		}
 	}
 
-	id, err := b.booksStorage.Create(&requestBody)
+	id, err := b.booksStorage.Create(storageInput)
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}

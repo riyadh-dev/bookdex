@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 
-	"github.com/riyadh-dev/go-rest-api-demo/models"
+	"github.com/riyadh-dev/bookdex/api/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

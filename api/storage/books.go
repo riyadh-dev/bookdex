@@ -3,8 +3,8 @@ package storage
 import (
 	"context"
 
-	"github.com/riyadh-dev/go-rest-api-demo/config"
-	"github.com/riyadh-dev/go-rest-api-demo/models"
+	"github.com/riyadh-dev/bookdex/api/config"
+	"github.com/riyadh-dev/bookdex/api/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -56,7 +56,7 @@ func (b *Books) GetById(id string) (*models.Book, error) {
 	return book, nil
 }
 
-func (b *Books) Create(input *models.InsertBookInput) (string, error) {
+func (b *Books) Create(input *models.InsertBookStorageInput) (string, error) {
 	result, err := b.dbColl.InsertOne(context.Background(), input)
 	if err != nil {
 		return "", err
