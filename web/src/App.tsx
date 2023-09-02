@@ -1,5 +1,10 @@
-function App() {
-	return <h1>bookdex</h1>;
-}
+import Providers from './providers';
+import Router from './router';
 
-export default App;
+export default function App() {
+	return (
+		<Providers>
+			<Router />
+		</Providers>
+	);
+}

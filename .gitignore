@@ -26,6 +26,7 @@ dist-ssr
 
 # cache
 .prettiercache
+.eslintcache
 
 # go
 tmp
