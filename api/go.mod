@@ -4,9 +4,9 @@ go 1.21.0
 
 require (
 	github.com/bytedance/sonic v1.10.0
-	github.com/go-playground/validator/v10 v10.15.1
-	github.com/gofiber/contrib/jwt v1.0.4
-	github.com/gofiber/fiber/v2 v2.48.0
+	github.com/go-playground/validator/v10 v10.15.3
+	github.com/gofiber/contrib/jwt v1.0.5
+	github.com/gofiber/fiber/v2 v2.49.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/mongo-driver v1.12.1
@@ -34,7 +34,7 @@ require (
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.48.0 // indirect
+	github.com/valyala/fasthttp v1.49.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect

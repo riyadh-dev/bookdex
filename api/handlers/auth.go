@@ -78,7 +78,7 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 		}
 	}
 
-	user, err := a.usersStorage.GetByUsername(requestBody.Username)
+	user, err := a.usersStorage.GetByEmail(requestBody.Email)
 	if err != nil {
 		return fiber.ErrNotFound
 	}
@@ -113,12 +113,14 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 		Name:     "jwt",
 		Value:    tokenString,
 		HTTPOnly: true,
+		SameSite: "Strict",
 		Expires:  expirationTime,
-		//Secure:   true,
+		Secure:   a.env.IS_PROD,
 	})
 
 	return ctx.JSON(fiber.Map{
 		"id":       user.ID.Hex(),
 		"username": user.Username,
+		"exp":      expirationTime.Unix(),
 	})
 }

@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/riyadh-dev/bookdex/api/config"
@@ -30,11 +28,7 @@ func newBooks(
 }
 
 func (b *Books) GetAll(ctx *fiber.Ctx) error {
-	userId := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)["userId"]
-
-	fmt.Printf("userId: %v\n", userId)
-
-	books, err := b.booksStorage.GetAll()
+	books, err := b.booksStorage.GetAll(ctx.Query("q"))
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}
@@ -72,8 +66,10 @@ func (b *Books) Create(ctx *fiber.Ctx) error {
 	}
 
 	storageInput := &models.InsertBookStorageInput{
-		Title:  requestBody.Title,
-		Author: requestBody.Author,
+		Title:    requestBody.Title,
+		Author:   requestBody.Author,
+		Cover:    requestBody.Cover,
+		Synopsis: requestBody.Synopsis,
 
 		SubmitterID: objectId,
 	}

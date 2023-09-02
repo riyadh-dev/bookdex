@@ -22,8 +22,11 @@ func newBooks(db *mongo.Database, customErrors *config.CustomErrors) *Books {
 	}
 }
 
-func (b *Books) GetAll() (*[]models.Book, error) {
-	cursor, err := b.dbColl.Find(context.Background(), bson.D{})
+func (b *Books) GetAll(query string) (*[]models.Book, error) {
+	titleFilter := bson.M{"title": bson.M{"$regex": query, "$options": "i"}}
+	authorFilter := bson.M{"author": bson.M{"$regex": query, "$options": "i"}}
+	filter := bson.M{"$or": []bson.M{titleFilter, authorFilter}}
+	cursor, err := b.dbColl.Find(context.Background(), filter)
 	if err != nil {
 		return nil, err
 	}

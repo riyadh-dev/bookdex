@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strconv"
 
@@ -8,6 +9,8 @@ import (
 )
 
 type Env struct {
+	IS_PROD bool
+
 	PORT string
 
 	MONGODB_URI string
@@ -16,16 +19,21 @@ type Env struct {
 	JWT_SECRET    string
 	COOKIE_SECRET string
 	AUTH_EXP_HOUR int
+
+	CLIENT_URL string
 }
 
 func newEnv() *Env {
-	if os.Getenv("GO_ENV") != "production" {
+	IS_PROD := os.Getenv("GO_ENV") == "production"
+	if !IS_PROD {
 		if err := godotenv.Load(); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 
 	return &Env{
+		IS_PROD: IS_PROD,
+
 		PORT: getEnvVar("PORT"),
 
 		MONGODB_URI: getEnvVar("MONGODB_URI"),
@@ -34,13 +42,15 @@ func newEnv() *Env {
 		JWT_SECRET:    getEnvVar("JWT_SECRET"),
 		COOKIE_SECRET: getEnvVar("COOKIE_SECRET"),
 		AUTH_EXP_HOUR: getIntEnvVar("AUTH_EXP_HOUR"),
+
+		CLIENT_URL: getEnvVar("CLIENT_URL"),
 	}
 }
 
 func getEnvVar(key string) string {
 	envVar := os.Getenv(key)
 	if envVar == "" {
-		panic("Missing environment variable: " + key)
+		log.Fatal("Missing environment variable: " + key)
 	}
 	return envVar
 }
@@ -48,11 +58,11 @@ func getEnvVar(key string) string {
 func getIntEnvVar(key string) int {
 	envVar := os.Getenv(key)
 	if envVar == "" {
-		panic("Missing environment variable: " + key)
+		log.Fatal("Missing environment variable: " + key)
 	}
 	envVarInt, err := strconv.Atoi(envVar)
 	if err != nil {
-		panic("Invalid environment variable: " + key)
+		log.Fatal("Invalid environment variable: " + key)
 	}
 	return envVarInt
 }

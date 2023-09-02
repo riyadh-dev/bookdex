@@ -5,6 +5,7 @@ import (
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -26,7 +27,13 @@ func newFiberApp(lifecycle fx.Lifecycle, env *config.Env) *fiber.App {
 	})
 
 	app.Use(logger.New())
+	//app.Use(limiter.New())
 	app.Use(recover.New())
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     env.CLIENT_URL,
+		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowCredentials: true,
+	}))
 	app.Use(encryptcookie.New(encryptcookie.Config{
 		Key: env.COOKIE_SECRET,
 	}))
@@ -52,10 +59,11 @@ func registerHandlers(
 
 	booksRouter := api.Group("/books")
 	booksRouter.Post("/", authMiddleware.IsAuth(), booksHandlers.Create)
-	booksRouter.Get("/", authMiddleware.IsAuth(), booksHandlers.GetAll)
+	booksRouter.Get("/", booksHandlers.GetAll)
 	booksRouter.Get("/:id", booksHandlers.GetById)
-	booksRouter.Put("/:id", booksHandlers.Update)
-	booksRouter.Delete("/:id", booksHandlers.Delete)
+	booksRouter.Put("/:id", authMiddleware.IsAuth(), booksHandlers.Update)
+	booksRouter.Delete("/:id", authMiddleware.IsAuth(), booksHandlers.Delete)
+
 }
 
 func initServer(lifecycle fx.Lifecycle, app *fiber.App, env *config.Env) {

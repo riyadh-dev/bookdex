@@ -1,4 +1,4 @@
-#web
+# web
 # Logs
 logs
 *.log
@@ -24,6 +24,9 @@ dist-ssr
 *.sln
 *.sw?
 
-#go
+# cache
+.prettiercache
+
+# go
 tmp
 .env
