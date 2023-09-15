@@ -1,4 +1,4 @@
-import { kyBookDexGetFetcher } from '@/config/ky';
+import { getFetcher } from '@/config/ky';
 import { IBook } from '@/definitions/interfaces';
 import { createQuery } from '@tanstack/solid-query';
 import { For } from 'solid-js';
@@ -6,7 +6,7 @@ import { For } from 'solid-js';
 export default function ListPage() {
 	const query = createQuery(
 		() => ['books'],
-		() => kyBookDexGetFetcher<IBook[]>('books'),
+		() => getFetcher<IBook[]>('books'),
 	);
 
 	return (

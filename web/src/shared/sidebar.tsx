@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import { AiOutlineBook } from 'solid-icons/ai';
 import { BiRegularHomeAlt2 } from 'solid-icons/bi';
 import { CgMenuLeft } from 'solid-icons/cg';
-import { FaRegularBookmark, FaRegularClock } from 'solid-icons/fa';
+import { FaRegularBookmark } from 'solid-icons/fa';
 import { OcGear2 } from 'solid-icons/oc';
 import { For, createMemo, createSignal } from 'solid-js';
 
@@ -18,11 +18,11 @@ const LINKS = [
 		path: '/list',
 		Icon: () => <AiOutlineBook size={30} />,
 	},
-	{
+	/*{
 		name: 'History',
 		path: '/history',
 		Icon: () => <FaRegularClock size={30} />,
-	},
+	},*/
 	{
 		name: 'Bookmarks',
 		path: '/bookmarks',
