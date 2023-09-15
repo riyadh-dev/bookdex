@@ -18,7 +18,7 @@ func (a *Auth) IsAuth() func(*fiber.Ctx) error {
 	return jwtware.New(jwtware.Config{
 		SigningKey:   jwtware.SigningKey{Key: []byte(a.env.JWT_SECRET)},
 		ErrorHandler: jwtError,
-		TokenLookup:  "cookie:jwt",
+		TokenLookup:  "cookie:JWT",
 	})
 }
 
@@ -26,7 +26,7 @@ func (a *Auth) IsOwner(paramName string) func(*fiber.Ctx) error {
 	return jwtware.New(jwtware.Config{
 		SigningKey:   jwtware.SigningKey{Key: []byte(a.env.JWT_SECRET)},
 		ErrorHandler: jwtError,
-		TokenLookup:  "cookie:jwt",
+		TokenLookup:  "cookie:JWT",
 		SuccessHandler: func(ctx *fiber.Ctx) error {
 			//TODO: check if user is owner of the resource
 			return ctx.Next()

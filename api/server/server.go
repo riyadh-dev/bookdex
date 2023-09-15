@@ -56,6 +56,7 @@ func registerHandlers(
 	authRouter := api.Group("/auth")
 	authRouter.Post("/sign-up", authHandlers.SignUp)
 	authRouter.Post("/sign-in", authHandlers.SignIn)
+	authRouter.Delete("/sign-out", authHandlers.SignOut)
 
 	booksRouter := api.Group("/books")
 	booksRouter.Post("/", authMiddleware.IsAuth(), booksHandlers.Create)

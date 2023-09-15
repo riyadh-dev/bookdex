@@ -110,7 +110,7 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 	}
 
 	ctx.Cookie(&fiber.Cookie{
-		Name:     "jwt",
+		Name:     "JWT",
 		Value:    tokenString,
 		HTTPOnly: true,
 		SameSite: "Strict",
@@ -123,4 +123,16 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 		"username": user.Username,
 		"exp":      expirationTime.Unix(),
 	})
+}
+
+func (a *Auth) SignOut(ctx *fiber.Ctx) error {
+	ctx.Cookie(&fiber.Cookie{
+		Name:     "JWT",
+		Value:    "deleted",
+		HTTPOnly: true,
+		SameSite: "Lax",
+		Expires:  time.Now().Add(-time.Hour),
+		Secure:   a.env.IS_PROD,
+	})
+	return ctx.SendStatus(fiber.StatusOK)
 }
