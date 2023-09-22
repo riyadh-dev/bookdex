@@ -62,7 +62,7 @@ func registerHandlers(
 	booksRouter.Post("/", authMiddleware.IsAuth(), booksHandlers.Create)
 	booksRouter.Get("/", booksHandlers.GetAll)
 	booksRouter.Get("/:id", booksHandlers.GetById)
-	booksRouter.Put("/:id", authMiddleware.IsAuth(), booksHandlers.Update)
+	booksRouter.Patch("/:id", authMiddleware.IsAuth(), authMiddleware.IsBookOwner(), booksHandlers.Update)
 	booksRouter.Delete("/:id", authMiddleware.IsAuth(), booksHandlers.Delete)
 
 }
