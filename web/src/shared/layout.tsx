@@ -6,7 +6,7 @@ export default function RootLayout() {
 	return (
 		<div class='flex py-8'>
 			<Sidebar />
-			<div class='grow px-12'>
+			<div class='grow px-8'>
 				<TopBar />
 				<Outlet />
 			</div>

@@ -42,8 +42,8 @@ export default function Sidebar() {
 	const [expanded, setExpanded] = createSignal(false);
 
 	return (
-		<aside class='flex h-[calc(100vh-4rem)] flex-col items-center justify-between border-r-2 border-[#DBD8CF] px-4'>
-			<img src='logo.png' class='h-10 w-10' />
+		<aside class='flex h-[calc(100vh-4rem)] flex-col items-center justify-between border-r-2 border-white px-4'>
+			<img src='logo.png' class=' h-10 w-10 invert' />
 
 			<div class='space-y-4'>
 				<For each={LINKS}>
@@ -51,10 +51,9 @@ export default function Sidebar() {
 						<A
 							href={link.path}
 							class={clsx(
-								pathname() === link.path && 'bg-[#E36165] fill-white',
-								!(pathname() === link.path) &&
-									'hover:bg-[#E36165] hover:fill-white',
-								'group grid h-14 w-14 place-items-center rounded-full',
+								pathname() === link.path && 'bg-orange-600',
+								!(pathname() === link.path) && 'hover:bg-orange-600',
+								'group grid h-14 w-14 place-items-center rounded-full fill-white',
 							)}
 						>
 							<link.Icon />
@@ -65,9 +64,9 @@ export default function Sidebar() {
 
 			<div
 				onClick={() => setExpanded(!expanded())}
-				class='grid h-14 w-14 place-items-center rounded-full hover:bg-[#EBE9DD]'
+				class='grid h-14 w-14 place-items-center rounded-full hover:bg-orange-600'
 			>
-				<CgMenuLeft class='fill-white text-3xl' />
+				<CgMenuLeft class='text-3xl' />
 			</div>
 		</aside>
 	);

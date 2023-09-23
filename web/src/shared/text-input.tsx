@@ -36,7 +36,7 @@ export function TextInput(props: TextInputProps) {
 					props.error
 						? 'border-rose-600 bg-rose-400/5 text-red-400 placeholder:text-red-400/75 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500'
 						: 'border-gray-400 bg-transparent',
-					'h-12 w-full rounded-lg border px-4 py-2',
+					'h-12 w-full rounded-lg border border-white px-4 py-2',
 				)}
 			/>
 			{props.error && (

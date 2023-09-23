@@ -75,7 +75,7 @@ export default function SignInForm() {
 			<button
 				type='submit'
 				disabled={mutation.isLoading}
-				class='h-12 w-full rounded-lg bg-[#E36165] px-4 text-center text-xl font-semibold text-white'
+				class='h-12 w-full rounded-lg bg-orange-600 px-4 text-center text-xl font-semibold text-white'
 			>
 				{mutation.isLoading
 					? 'Loading...'

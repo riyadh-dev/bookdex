@@ -48,7 +48,7 @@ export default function TopBar() {
 						<button
 							onClick={() => setIsAuthModalOpen(true)}
 							aria-label='login/sign-up'
-							class='group grid place-items-center rounded-full p-2 hover:bg-[#E36165] hover:fill-white'
+							class='group grid place-items-center rounded-full fill-white p-2 hover:bg-orange-600'
 						>
 							<AiOutlineLogin size={24} />
 						</button>
@@ -83,7 +83,7 @@ export default function TopBar() {
 						<Show when={isPopoverOpen()}>
 							<div
 								onClick={() => setIsPopoverOpen(false)}
-								class='absolute -right-8 mt-2 w-max rounded-md bg-[#fffdf0] py-4 font-semibold shadow-md'
+								class='absolute -right-6 mt-2 w-max rounded-md border bg-neutral-700 py-4 font-semibold shadow-md'
 							>
 								<button
 									onClick={() => setIsAddBookOpen(true)}
@@ -123,7 +123,7 @@ export default function TopBar() {
 			</div>
 
 			<div class='flex items-center gap-x-4'>
-				<div class='h-10 w-10 rounded-full bg-[#E36165]' />
+				<div class='h-10 w-10 rounded-full bg-orange-600' />
 				<span class='font-semibold'>Riyadh Baatchia</span>
 			</div>
 		</nav>

@@ -16,7 +16,7 @@ export default function AuthForms() {
 	const disabled = disableAuthActionsAccessor;
 
 	return (
-		<div class='mx-auto max-w-xl rounded-xl bg-[#fffdf0] p-6'>
+		<div class='mx-auto max-w-xl rounded-xl border bg-neutral-800 p-6'>
 			<div class='relative py-6'>
 				<button
 					aria-label='close'
@@ -24,7 +24,7 @@ export default function AuthForms() {
 					disabled={disabled()}
 					class='absolute flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-gray-700'
 				>
-					<FaSolidXmark />
+					<FaSolidXmark fill='white' />
 				</button>
 
 				<h1 class='text-center text-lg font-bold'>Log in or sign up</h1>
@@ -56,7 +56,7 @@ export default function AuthForms() {
 					<button
 						disabled={disabled()}
 						onClick={() => setFormType('mock-list')}
-						class='relative h-12 w-full animate-pulse rounded-lg border bg-neutral-950 text-white dark:bg-white dark:text-black'
+						class='relative h-12 w-full animate-pulse rounded-lg border bg-white text-black'
 					>
 						<i class='ri-user-smile-line absolute bottom-1/2 left-6 translate-y-1/2 text-2xl' />
 						<span class='font-bold'>Continue with Mock account</span>
@@ -68,7 +68,7 @@ export default function AuthForms() {
 						<button
 							disabled={disabled()}
 							onClick={() => setFormType('sign-up')}
-							class='relative h-12 w-full rounded-lg border border-black dark:border-white'
+							class='relative h-12 w-full rounded-lg border border-white'
 						>
 							<i class='ri-mail-line absolute bottom-1/2 left-6 translate-y-1/2 text-2xl' />
 							<span class='font-bold'>Sign up with Email and password</span>

@@ -33,15 +33,15 @@ export default function AddBookForm() {
 	};
 
 	return (
-		<div class='mx-auto max-w-xl rounded-xl bg-[#fffdf0] p-6'>
+		<div class='mx-auto max-w-xl rounded-xl border bg-neutral-800 p-6'>
 			<div class='relative py-6'>
 				<button
 					aria-label='close'
 					onClick={() => setModalOpen(false)}
 					disabled={mutation.isLoading}
-					class='absolute flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#E36165] hover:fill-white'
+					class='absolute flex h-8 w-8 items-center justify-center rounded-full hover:bg-orange-600 hover:fill-white'
 				>
-					<FaSolidXmark />
+					<FaSolidXmark fill='white' />
 				</button>
 
 				<h1 class='text-center text-lg font-bold'>Add a new book</h1>
@@ -102,7 +102,7 @@ export default function AddBookForm() {
 					<button
 						type='submit'
 						disabled={mutation.isLoading}
-						class='h-12 w-full rounded-lg bg-[#E36165] px-4 text-center text-xl font-semibold text-white'
+						class='h-12 w-full rounded-lg bg-orange-600 px-4 text-center text-xl font-semibold text-white'
 					>
 						{mutation.isLoading
 							? 'Loading...'
