@@ -15,7 +15,7 @@ export default function ListPage() {
 
 	return (
 		<main>
-			<ul class='grid grid-cols-2 gap-4'>
+			<ul class='grid grid-cols-3 gap-4'>
 				<For each={query.data}>
 					{(book) => (
 						<li>
@@ -54,7 +54,7 @@ function BookCard(props: { book: IBook }) {
 					</div>
 				</div>
 
-				<p>{props.book.synopsis}</p>
+				<p class='line-clamp-5'>{props.book.synopsis}</p>
 			</div>
 		</A>
 	);
