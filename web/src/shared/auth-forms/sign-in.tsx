@@ -26,7 +26,7 @@ export default function SignInForm() {
 
 	const setCurrentUser = currentUserSignalSetter;
 	const setModalOpen = isAuthModalOpenSetter;
-	const mutation = createMutation({
+	const mutation = createMutation(() => ({
 		mutationFn: (data: TSignIn) =>
 			kyBookDex
 				.post('auth/sign-in', { json: data, credentials: 'include' })
@@ -35,7 +35,7 @@ export default function SignInForm() {
 			setCurrentUser(currentUser);
 			setModalOpen(false);
 		},
-	});
+	}));
 
 	const handleSubmit = (data: TSignIn) => {
 		mutation.mutate(data);
@@ -43,7 +43,7 @@ export default function SignInForm() {
 
 	const setDisable = disableAuthActionsSetter;
 	createEffect(() => {
-		mutation.isLoading ? setDisable(true) : setDisable(false);
+		mutation.isPending ? setDisable(true) : setDisable(false);
 	});
 
 	return (
@@ -74,10 +74,10 @@ export default function SignInForm() {
 			</Field>
 			<button
 				type='submit'
-				disabled={mutation.isLoading}
+				disabled={mutation.isPending}
 				class='h-12 w-full rounded-lg bg-orange-600 px-4 text-center text-xl font-semibold text-white'
 			>
-				{mutation.isLoading
+				{mutation.isPending
 					? 'Loading...'
 					: mutation.isError
 					? 'Error'

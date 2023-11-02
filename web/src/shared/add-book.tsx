@@ -22,11 +22,11 @@ export default function AddBookForm() {
 	});
 
 	const setModalOpen = isAddBookModalOpenSetter;
-	const mutation = createMutation({
+	const mutation = createMutation(() => ({
 		mutationFn: (data: TCreateBook) =>
 			kyBookDex.post('books', { json: data, credentials: 'include' }).json(),
 		onSuccess: () => setModalOpen(false),
-	});
+	}));
 
 	const handleSubmit = (data: TCreateBook) => {
 		mutation.mutate(data);
@@ -38,7 +38,7 @@ export default function AddBookForm() {
 				<button
 					aria-label='close'
 					onClick={() => setModalOpen(false)}
-					disabled={mutation.isLoading}
+					disabled={mutation.isPending}
 					class='absolute flex h-8 w-8 items-center justify-center rounded-full hover:bg-orange-600 hover:fill-white'
 				>
 					<FaSolidXmark fill='white' />
@@ -101,10 +101,10 @@ export default function AddBookForm() {
 					</Field>
 					<button
 						type='submit'
-						disabled={mutation.isLoading}
+						disabled={mutation.isPending}
 						class='h-12 w-full rounded-lg bg-orange-600 px-4 text-center text-xl font-semibold text-white'
 					>
-						{mutation.isLoading
+						{mutation.isPending
 							? 'Loading...'
 							: mutation.isError
 							? 'Error'

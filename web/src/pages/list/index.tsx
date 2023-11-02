@@ -8,10 +8,10 @@ import { FiBookmark } from 'solid-icons/fi';
 import { For } from 'solid-js';
 
 export default function ListPage() {
-	const query = createQuery(
-		() => ['books'],
-		() => getFetcher<IBook[]>('books'),
-	);
+	const query = createQuery(() => ({
+		queryKey: ['books'],
+		queryFn: () => getFetcher<IBook[]>('books'),
+	}));
 
 	return (
 		<main>

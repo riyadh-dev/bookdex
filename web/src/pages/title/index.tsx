@@ -6,10 +6,10 @@ import { Match, Switch } from 'solid-js';
 
 export default function TitlePage() {
 	const params = useParams();
-	const query = createQuery(
-		() => ['book', params.id],
-		() => getFetcher<IBook>(`books/${params.id}`),
-	);
+	const query = createQuery(() => ({
+		queryKey: ['book', params.id],
+		queryFn: () => getFetcher<IBook>(`books/${params.id}`),
+	}));
 
 	return (
 		<Switch

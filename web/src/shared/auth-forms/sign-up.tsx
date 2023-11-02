@@ -3,7 +3,8 @@ import { TextInput } from '@/shared/text-input';
 import { disableAuthActionsSetter } from '@/state/signals';
 import { createForm, valiForm } from '@modular-forms/solid';
 import { createMutation } from '@tanstack/solid-query';
-import { createEffect } from 'solid-js';
+import { HTTPError } from 'ky';
+import { createEffect, createSignal } from 'solid-js';
 import { Output, email, minLength, object, string } from 'valibot';
 
 const SignUpFormSchema = object({
@@ -22,10 +23,16 @@ export default function SignUpForm() {
 		validate: valiForm(SignUpFormSchema),
 	});
 
-	const mutation = createMutation({
+	const [isEmailDuplicated, setIsEmailDuplicated] = createSignal(false);
+	const mutation = createMutation(() => ({
 		mutationFn: (data: TSignUp) =>
 			kyBookDex.post('auth/sign-up', { json: data }).json(),
-	});
+		onError(error) {
+			if ((error as HTTPError).response.status === 409) {
+				setIsEmailDuplicated(true);
+			}
+		},
+	}));
 
 	const handleSubmit = (data: TSignUp) => {
 		mutation.mutate(data);
@@ -33,7 +40,7 @@ export default function SignUpForm() {
 
 	const setDisable = disableAuthActionsSetter;
 	createEffect(() => {
-		mutation.isLoading ? setDisable(true) : setDisable(false);
+		mutation.isPending ? setDisable(true) : setDisable(false);
 	});
 
 	return (
@@ -57,7 +64,9 @@ export default function SignUpForm() {
 							{...props}
 							type='email'
 							placeholder='Email'
-							error={field.error}
+							error={
+								isEmailDuplicated() ? ' Email already exists' : field.error
+							}
 							value={field.value}
 							required
 						/>
@@ -69,7 +78,9 @@ export default function SignUpForm() {
 							{...props}
 							type='email'
 							placeholder='confirm Email'
-							error={field.error}
+							error={
+								isEmailDuplicated() ? ' Email already exists' : field.error
+							}
 							value={field.value}
 							required
 						/>
@@ -102,10 +113,10 @@ export default function SignUpForm() {
 			</div>
 			<button
 				type='submit'
-				disabled={mutation.isLoading}
+				disabled={mutation.isPending}
 				class='h-12 w-full rounded-lg bg-orange-600 px-4 text-center text-xl font-semibold text-white'
 			>
-				{mutation.isLoading
+				{mutation.isPending
 					? 'Loading...'
 					: mutation.isError
 					? 'Error'
