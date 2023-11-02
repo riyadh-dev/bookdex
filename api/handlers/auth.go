@@ -55,6 +55,9 @@ func (a *Auth) SignUp(ctx *fiber.Ctx) error {
 	requestBody.Password = string(hashedPassword)
 	id, err := a.usersStorage.Create(&requestBody)
 	if err != nil {
+		if err.Error() == "duplicate key" {
+			return fiber.ErrConflict
+		}
 		return fiber.ErrInternalServerError
 	}
 

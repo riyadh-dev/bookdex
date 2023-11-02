@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/riyadh-dev/bookdex/api/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,6 +21,10 @@ func newUsers(db *mongo.Database) *Users {
 func (u *Users) Create(input *models.InsertUserInput) (string, error) {
 	result, err := u.dbColl.InsertOne(context.Background(), *input)
 	if err != nil {
+		if mongo.IsDuplicateKeyError(err) {
+			// TODO look for a better approach
+			return "", fmt.Errorf("duplicate key")
+		}
 		return "", err
 	}
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
