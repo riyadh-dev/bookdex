@@ -11,5 +11,6 @@ func newCustomErrors() *CustomErrors {
 	return &CustomErrors{
 		ErrInvalidId: errors.New("invalid id"),
 		ErrNotFound:  errors.New("not found"),
+		//TODO add duplicate key
 	}
 }
