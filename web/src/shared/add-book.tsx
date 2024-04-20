@@ -1,39 +1,41 @@
-import { kyBookDex } from '@/config/ky';
-import { TextArea } from '@/shared/text-area';
-import { TextInput } from '@/shared/text-input';
-import { isAddBookModalOpenSetter } from '@/state/signals';
-import { createForm, valiForm } from '@modular-forms/solid';
-import { createMutation } from '@tanstack/solid-query';
-import { FaSolidXmark } from 'solid-icons/fa';
-import { Output, maxLength, minLength, object, string, url } from 'valibot';
+import { kyBookDex } from '@/config/ky'
+import { TextArea } from '@/shared/text-area'
+import { TextInput } from '@/shared/text-input'
+import { isAddBookModalOpenSetter } from '@/state/signals'
+import { createForm, valiForm } from '@modular-forms/solid'
+import { createMutation } from '@tanstack/solid-query'
+import { FaSolidXmark } from 'solid-icons/fa'
+import { Output, maxLength, minLength, object, string, url } from 'valibot'
 
 const CreateBookSchema = object({
 	title: string([minLength(5), maxLength(20)]),
 	author: string([minLength(5), maxLength(20)]),
 	cover: string([url()]),
 	synopsis: string([minLength(5), maxLength(750)]),
-});
+})
 
-type TCreateBook = Output<typeof CreateBookSchema>;
+type TCreateBook = Output<typeof CreateBookSchema>
 
 export default function AddBookForm() {
 	const [, { Form, Field }] = createForm<TCreateBook>({
 		validate: valiForm(CreateBookSchema),
-	});
+	})
 
-	const setModalOpen = isAddBookModalOpenSetter;
+	const setModalOpen = isAddBookModalOpenSetter
 	const mutation = createMutation(() => ({
 		mutationFn: (data: TCreateBook) =>
-			kyBookDex.post('books', { json: data, credentials: 'include' }).json(),
+			kyBookDex
+				.post('books', { json: data, credentials: 'include' })
+				.json(),
 		onSuccess: () => setModalOpen(false),
-	}));
+	}))
 
 	const handleSubmit = (data: TCreateBook) => {
-		mutation.mutate(data);
-	};
+		mutation.mutate(data)
+	}
 
 	return (
-		<div class='mx-auto max-w-xl rounded-xl border bg-neutral-800 p-6'>
+		<div class='mx-auto max-w-xl rounded bg-neutral-800 p-6'>
 			<div class='relative py-6'>
 				<button
 					aria-label='close'
@@ -102,16 +104,16 @@ export default function AddBookForm() {
 					<button
 						type='submit'
 						disabled={mutation.isPending}
-						class='h-12 w-full rounded-lg bg-orange-600 px-4 text-center text-xl font-semibold text-white'
+						class='h-12 w-full rounded bg-orange-600 px-4 text-center text-lg font-semibold text-white'
 					>
 						{mutation.isPending
 							? 'Loading...'
 							: mutation.isError
-							? 'Error'
-							: 'Add Book'}
+								? 'Error'
+								: 'Add Book'}
 					</button>
 				</Form>
 			</div>
 		</div>
-	);
+	)
 }

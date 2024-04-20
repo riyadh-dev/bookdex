@@ -1,11 +1,11 @@
-import { Accessor, Component, Setter, Show } from 'solid-js';
-import { Portal } from 'solid-js/web';
-import { Transition } from 'solid-transition-group';
+import { Accessor, Component, Setter, Show } from 'solid-js'
+import { Portal } from 'solid-js/web'
+import { Transition } from 'solid-transition-group'
 
 interface IProps {
-	Modal: Component;
-	isOpen: Accessor<boolean>;
-	setIsOpen: Setter<boolean>;
+	Modal: Component
+	isOpen: Accessor<boolean>
+	setIsOpen: Setter<boolean>
 }
 
 export default function Modal(props: IProps) {
@@ -41,5 +41,5 @@ export default function Modal(props: IProps) {
 				</Show>
 			</Transition>
 		</Portal>
-	);
+	)
 }

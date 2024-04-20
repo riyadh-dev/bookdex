@@ -1,6 +1,6 @@
-import { fileURLToPath, URL } from 'url';
-import { defineConfig } from 'vite';
-import solid from 'vite-plugin-solid';
+import { fileURLToPath, URL } from 'url'
+import { defineConfig } from 'vite'
+import solid from 'vite-plugin-solid'
 
 export default defineConfig({
 	plugins: [solid()],
@@ -16,4 +16,4 @@ export default defineConfig({
 			},
 		],
 	},
-});
+})

@@ -1,24 +1,24 @@
-import clsx from 'clsx';
-import { BiSolidErrorCircle } from 'solid-icons/bi';
-import { JSX, splitProps } from 'solid-js';
+import clsx from 'clsx'
+import { BiSolidErrorCircle } from 'solid-icons/bi'
+import { JSX, splitProps } from 'solid-js'
 
 type TextInputProps = {
-	name: string;
-	type: 'text' | 'email' | 'tel' | 'password' | 'url' | 'date';
-	label?: string;
-	placeholder?: string;
-	value: string | undefined;
-	error: string;
-	required?: boolean;
+	name: string
+	type: 'text' | 'email' | 'tel' | 'password' | 'url' | 'date'
+	label?: string
+	placeholder?: string
+	value: string | undefined
+	error: string
+	required?: boolean
 	// eslint-disable-next-line no-unused-vars
-	ref: (el: HTMLInputElement) => void;
-	onInput: JSX.EventHandler<HTMLInputElement, InputEvent>;
-	onChange: JSX.EventHandler<HTMLInputElement, Event>;
-	onBlur: JSX.EventHandler<HTMLInputElement, FocusEvent>;
-};
+	ref: (el: HTMLInputElement) => void
+	onInput: JSX.EventHandler<HTMLInputElement, InputEvent>
+	onChange: JSX.EventHandler<HTMLInputElement, Event>
+	onBlur: JSX.EventHandler<HTMLInputElement, FocusEvent>
+}
 
 export function TextInput(props: TextInputProps) {
-	const [, inputProps] = splitProps(props, ['value', 'label', 'error']);
+	const [, inputProps] = splitProps(props, ['value', 'label', 'error'])
 	return (
 		<div class='space-y-2'>
 			{props.label && (
@@ -36,7 +36,7 @@ export function TextInput(props: TextInputProps) {
 					props.error
 						? 'border-rose-600 bg-rose-400/5 text-red-400 placeholder:text-red-400/75 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500'
 						: 'border-gray-400 bg-transparent',
-					'h-12 w-full rounded-lg border border-white px-4 py-2',
+					'h-12 w-full rounded border border-white px-4 py-2'
 				)}
 			/>
 			{props.error && (
@@ -49,5 +49,5 @@ export function TextInput(props: TextInputProps) {
 				</div>
 			)}
 		</div>
-	);
+	)
 }

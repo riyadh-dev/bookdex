@@ -1,38 +1,39 @@
-import { kyBookDex } from '@/config/ky';
-import AddBookForm from '@/shared/add-book';
+import { kyBookDex } from '@/config/ky'
+import AddBookForm from '@/shared/add-book'
 import {
 	currentUserSignalAccessor,
 	isAddBookModalOpenSignal,
 	isAuthModalOpenSignal,
-} from '@/state/signals';
-import { AiOutlineLogin } from 'solid-icons/ai';
-import { HiOutlineMagnifyingGlass } from 'solid-icons/hi';
-import { Match, Show, Switch, createSignal } from 'solid-js';
-import AuthForms from './auth-forms';
-import Modal from './modal';
+} from '@/state/signals'
+import { A } from '@solidjs/router'
+import { AiOutlineLogin } from 'solid-icons/ai'
+import { HiOutlineMagnifyingGlass } from 'solid-icons/hi'
+import { Match, Show, Switch, createSignal } from 'solid-js'
+import AuthForms from './auth-forms'
+import Modal from './modal'
 
 export default function TopBar() {
-	const [isAuthModalOpen, setIsAuthModalOpen] = isAuthModalOpenSignal;
-	const [isAddBookModalOpen, setIsAddBookOpen] = isAddBookModalOpenSignal;
+	const [isAuthModalOpen, setIsAuthModalOpen] = isAuthModalOpenSignal
+	const [isAddBookModalOpen, setIsAddBookOpen] = isAddBookModalOpenSignal
 
-	const [isPopoverOpen, setIsPopoverOpen] = createSignal(false);
+	const [isPopoverOpen, setIsPopoverOpen] = createSignal(false)
 
-	const currentUser = currentUserSignalAccessor;
+	const currentUser = currentUserSignalAccessor
 
-	const [loading, setLoading] = createSignal(false);
+	const [loading, setLoading] = createSignal(false)
 	const logout = async () => {
-		setLoading(true);
+		setLoading(true)
 		await kyBookDex
 			.delete('auth/sign-out', { credentials: 'include' })
 			.finally(() => {
-				setLoading(false);
-				localStorage.clear();
-				window.location.href = '/';
-			});
-	};
+				setLoading(false)
+				localStorage.clear()
+				window.location.href = '/'
+			})
+	}
 
 	return (
-		<nav class='flex h-16 w-full items-start justify-between'>
+		<nav class='flex h-16 w-full items-start justify-between px-8'>
 			<div class='flex items-center gap-x-4'>
 				<HiOutlineMagnifyingGlass class='text-xl' />
 				<input
@@ -65,7 +66,7 @@ export default function TopBar() {
 							onClick={() => setIsPopoverOpen(true)}
 							class='flex items-center gap-x-3'
 						>
-							<div class='h-8 w-8 rounded-full bg-rose-400' />
+							<div class='h-8 w-8 rounded-full bg-orange-600' />
 							<h1 class='text-lg font-semibold capitalize'>
 								{
 									//@ts-expect-error - checked on match
@@ -83,21 +84,27 @@ export default function TopBar() {
 						<Show when={isPopoverOpen()}>
 							<div
 								onClick={() => setIsPopoverOpen(false)}
-								class='absolute -right-6 mt-2 w-max rounded-md border bg-neutral-700 py-4 font-semibold shadow-md'
+								class='absolute -right-6 z-10 mt-2 w-max rounded bg-neutral-800 py-4 font-semibold'
 							>
 								<button
 									onClick={() => setIsAddBookOpen(true)}
-									class='block px-6 py-2 text-left hover:bg-black/5'
+									class='block px-6 py-2 text-left hover:bg-orange-600'
 								>
 									Add New Book
 								</button>
-								<button class='block w-full px-6 py-2 text-left hover:bg-black/5'>
+								<A
+									href='my-entries'
+									class='block px-6 py-2 text-left hover:bg-orange-600'
+								>
+									My Entries
+								</A>
+								<button class='block w-full px-6 py-2 text-left hover:bg-orange-600'>
 									Edit Profile
 								</button>
 								<button
 									onClick={logout}
 									disabled={loading()}
-									class='block w-full px-6 py-2 text-left hover:bg-black/5'
+									class='block w-full px-6 py-2 text-left hover:bg-orange-600'
 								>
 									{loading() ? 'Logging out...' : 'Logout'}
 								</button>
@@ -107,7 +114,7 @@ export default function TopBar() {
 				</Match>
 			</Switch>
 		</nav>
-	);
+	)
 }
 
 /*function LoginSection() {

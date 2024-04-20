@@ -1,22 +1,22 @@
 import {
 	disableAuthActionsAccessor,
 	isAuthModalOpenSetter,
-} from '@/state/signals';
-import { FaSolidXmark } from 'solid-icons/fa';
-import { Match, Show, Switch, createSignal } from 'solid-js';
-import SignInForm from './sign-in';
-import SignUpForm from './sign-up';
+} from '@/state/signals'
+import { FaSolidXmark } from 'solid-icons/fa'
+import { Match, Show, Switch, createSignal } from 'solid-js'
+import SignInForm from './sign-in'
+import SignUpForm from './sign-up'
 
 export default function AuthForms() {
 	const [formType, setFormType] = createSignal<
 		'sign-up' | 'sign-in' | 'mock-list'
-	>('sign-in');
+	>('sign-in')
 
-	const setOpen = isAuthModalOpenSetter;
-	const disabled = disableAuthActionsAccessor;
+	const setOpen = isAuthModalOpenSetter
+	const disabled = disableAuthActionsAccessor
 
 	return (
-		<div class='mx-auto max-w-xl rounded-xl border bg-neutral-800 p-6'>
+		<div class='mx-auto max-w-xl rounded bg-neutral-800 p-6'>
 			<div class='relative py-6'>
 				<button
 					aria-label='close'
@@ -56,10 +56,12 @@ export default function AuthForms() {
 					<button
 						disabled={disabled()}
 						onClick={() => setFormType('mock-list')}
-						class='relative h-12 w-full animate-pulse rounded-lg border bg-white text-black'
+						class='relative h-12 w-full animate-pulse rounded border bg-white text-black'
 					>
 						<i class='ri-user-smile-line absolute bottom-1/2 left-6 translate-y-1/2 text-2xl' />
-						<span class='font-bold'>Continue with Mock account</span>
+						<span class='font-bold'>
+							Continue with Mock account
+						</span>
 					</button>
 				</Show>
 
@@ -68,24 +70,28 @@ export default function AuthForms() {
 						<button
 							disabled={disabled()}
 							onClick={() => setFormType('sign-up')}
-							class='relative h-12 w-full rounded-lg border border-white'
+							class='relative h-12 w-full rounded border border-white'
 						>
 							<i class='ri-mail-line absolute bottom-1/2 left-6 translate-y-1/2 text-2xl' />
-							<span class='font-bold'>Sign up with Email and password</span>
+							<span class='font-bold'>
+								Sign up with Email and password
+							</span>
 						</button>
 					</Match>
 					<Match when={formType() !== 'sign-in'}>
 						<button
 							disabled={disabled()}
 							onClick={() => setFormType('sign-in')}
-							class='relative h-12 w-full rounded-lg border border-black dark:border-white'
+							class='relative h-12 w-full rounded border border-black dark:border-white'
 						>
 							<i class='ri-mail-line absolute bottom-1/2 left-6 translate-y-1/2 text-2xl' />
-							<span class='font-bold'>Login with Email and password</span>
+							<span class='font-bold'>
+								Login with Email and password
+							</span>
 						</button>
 					</Match>
 				</Switch>
 			</div>
 		</div>
-	);
+	)
 }

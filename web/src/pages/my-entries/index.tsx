@@ -1,21 +1,21 @@
-import { getFetcher } from '@/config/ky';
-import { IBook } from '@/definitions/interfaces';
-import { A } from '@solidjs/router';
-import { createQuery } from '@tanstack/solid-query';
-import { AiOutlineStar } from 'solid-icons/ai';
-import { BiRegularComment } from 'solid-icons/bi';
-import { FiBookmark } from 'solid-icons/fi';
-import { For } from 'solid-js';
+import { getFetcher } from '@/config/ky'
+import { IBook } from '@/definitions/interfaces'
+import { A } from '@solidjs/router'
+import { createQuery } from '@tanstack/solid-query'
+import { AiOutlineStar } from 'solid-icons/ai'
+import { BiRegularComment } from 'solid-icons/bi'
+import { FiBookmark } from 'solid-icons/fi'
+import { For } from 'solid-js'
 
 export default function ListPage() {
 	const query = createQuery(() => ({
 		queryKey: ['books'],
 		queryFn: () => getFetcher<IBook[]>('books'),
-	}));
+	}))
 
 	return (
 		<main>
-			<ul class='grid grid-cols-3 gap-4'>
+			<ul class='grid grid-cols-3 gap-4 px-8'>
 				<For each={query.data}>
 					{(book) => (
 						<li>
@@ -25,7 +25,7 @@ export default function ListPage() {
 				</For>
 			</ul>
 		</main>
-	);
+	)
 }
 
 function BookCard(props: { book: IBook }) {
@@ -33,9 +33,9 @@ function BookCard(props: { book: IBook }) {
 		<A
 			href={`/title/${props.book.id}`}
 			aria-label={`Book ${props.book.title}`}
-			class='flex h-60 gap-x-4 rounded-md bg-neutral-700 p-4 text-white'
+			class='flex h-60 gap-x-4 rounded bg-neutral-700 p-4 text-white'
 		>
-			<img src={props.book.cover} alt='cover' class='h-full rounded-md' />
+			<img src={props.book.cover} alt='cover' class='h-full rounded' />
 			<div class='overflow-hidden'>
 				<h2 class='text-lg font-bold'>{props.book.title}</h2>
 				<p class='pb-2'>Author: {props.book.author}</p>
@@ -57,5 +57,5 @@ function BookCard(props: { book: IBook }) {
 				<p class='line-clamp-5'>{props.book.synopsis}</p>
 			</div>
 		</A>
-	);
+	)
 }
