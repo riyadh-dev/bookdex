@@ -1,11 +1,8 @@
 import { getFetcher } from '@/config/ky'
 import { IBook } from '@/definitions/interfaces'
-import { A } from '@solidjs/router'
+import { BookCard } from '@/shared/book-card'
 import { createQuery } from '@tanstack/solid-query'
-import { AiOutlineStar } from 'solid-icons/ai'
-import { BiRegularComment } from 'solid-icons/bi'
-import { FiBookmark } from 'solid-icons/fi'
-import { For } from 'solid-js'
+import { For, Match, Switch } from 'solid-js'
 
 export default function HomePage() {
 	const query = createQuery(() => ({
@@ -15,47 +12,35 @@ export default function HomePage() {
 
 	return (
 		<main>
-			<ul class='grid grid-cols-3 gap-4 px-8'>
-				<For each={query.data}>
-					{(book) => (
-						<li>
-							<BookCard book={book} />
-						</li>
-					)}
-				</For>
-			</ul>
+			<Switch>
+				<Match when={query.isPending}>
+					<ul class='grid grid-cols-3 gap-4 px-8'>
+						<For each={Array.from({ length: 9 })}>
+							{() => (
+								<li class='flex h-60 animate-pulse gap-x-4 rounded bg-neutral-700 p-4 text-white' />
+							)}
+						</For>
+					</ul>
+				</Match>
+
+				<Match when={query.isError}>
+					<p class='pt-14 text-center text-2xl font-semibold text-red-600'>
+						Something went wrong
+					</p>
+				</Match>
+
+				<Match when={query.isSuccess}>
+					<ul class='grid grid-cols-3 gap-4 px-8'>
+						<For each={query.data}>
+							{(book) => (
+								<li>
+									<BookCard book={book} />
+								</li>
+							)}
+						</For>
+					</ul>
+				</Match>
+			</Switch>
 		</main>
-	)
-}
-
-function BookCard(props: { book: IBook }) {
-	return (
-		<A
-			href={`/title/${props.book.id}`}
-			aria-label={`Book ${props.book.title}`}
-			class='flex h-60 gap-x-4 rounded bg-neutral-700 p-4 text-white'
-		>
-			<img src={props.book.cover} alt='cover' class='h-full rounded' />
-			<div class='overflow-hidden'>
-				<h2 class='text-lg font-bold'>{props.book.title}</h2>
-				<p class='pb-2'>Author: {props.book.author}</p>
-				<div class='flex items-center gap-x-12 text-base leading-tight'>
-					<div class='flex items-end gap-x-2 pb-1'>
-						<AiOutlineStar class='fill-white' />
-						<span>7.8</span>
-					</div>
-					<div class='flex items-end gap-x-2'>
-						<FiBookmark />
-						<span>500</span>
-					</div>
-					<div class='flex items-end gap-x-2'>
-						<BiRegularComment class='fill-white' />
-						<span>21</span>
-					</div>
-				</div>
-
-				<p class='line-clamp-5'>{props.book.synopsis}</p>
-			</div>
-		</A>
 	)
 }

@@ -1,7 +1,7 @@
 import { Route, Router as SolidRouter } from '@solidjs/router'
-import BookmarksPage from './pages/bookmarks'
+import FollowsPage from './pages/favorites'
 import HomePage from './pages/home'
-import ListPage from './pages/my-entries'
+import MyEntries from './pages/my-entries'
 import SettingsPage from './pages/settings'
 import TitlePage from './pages/title'
 import RootLayout from './shared/layout'
@@ -11,10 +11,9 @@ export default function Router() {
 		<SolidRouter>
 			<Route path='/' component={RootLayout}>
 				<Route path='' component={HomePage} />
-				<Route path='my-entries' component={ListPage} />
 				<Route path='title/:id' component={TitlePage} />
-				{/*<Route path='history' component={HistoryPage} />*/}
-				<Route path='bookmarks' component={BookmarksPage} />
+				<Route path='my-entries' component={MyEntries} />
+				<Route path='follows' component={FollowsPage} />
 				<Route path='settings' component={SettingsPage} />
 				<Route path='*' component={NotFound} />
 			</Route>
@@ -23,5 +22,5 @@ export default function Router() {
 }
 
 function NotFound() {
-	return <div>Not Found</div>
+	return <p class='pt-14 text-center text-2xl font-semibold'>Not Found</p>
 }

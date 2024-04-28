@@ -1,6 +1,6 @@
 import { kyBookDex } from '@/config/ky'
 import { TextInput } from '@/shared/text-input'
-import { disableAuthActionsSetter } from '@/state/signals'
+import { setStore } from '@/store'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation } from '@tanstack/solid-query'
 import { HTTPError } from 'ky'
@@ -38,9 +38,8 @@ export default function SignUpForm() {
 		mutation.mutate(data)
 	}
 
-	const setDisable = disableAuthActionsSetter
 	createEffect(() => {
-		mutation.isPending ? setDisable(true) : setDisable(false)
+		setStore('disableAuthActions', mutation.isPending)
 	})
 
 	return (

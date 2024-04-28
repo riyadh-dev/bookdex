@@ -1,10 +1,6 @@
 import { kyBookDex } from '@/config/ky'
 import AddBookForm from '@/shared/add-book'
-import {
-	currentUserSignalAccessor,
-	isAddBookModalOpenSignal,
-	isAuthModalOpenSignal,
-} from '@/state/signals'
+import { persistedStore, setStore, store } from '@/store'
 import { A } from '@solidjs/router'
 import { AiOutlineLogin } from 'solid-icons/ai'
 import { HiOutlineMagnifyingGlass } from 'solid-icons/hi'
@@ -13,12 +9,7 @@ import AuthForms from './auth-forms'
 import Modal from './modal'
 
 export default function TopBar() {
-	const [isAuthModalOpen, setIsAuthModalOpen] = isAuthModalOpenSignal
-	const [isAddBookModalOpen, setIsAddBookOpen] = isAddBookModalOpenSignal
-
 	const [isPopoverOpen, setIsPopoverOpen] = createSignal(false)
-
-	const currentUser = currentUserSignalAccessor
 
 	const [loading, setLoading] = createSignal(false)
 	const logout = async () => {
@@ -33,7 +24,7 @@ export default function TopBar() {
 	}
 
 	return (
-		<nav class='flex h-16 w-full items-start justify-between px-8'>
+		<nav class='flex w-full items-start justify-between px-8 pb-4'>
 			<div class='flex items-center gap-x-4'>
 				<HiOutlineMagnifyingGlass class='text-xl' />
 				<input
@@ -44,10 +35,10 @@ export default function TopBar() {
 			</div>
 
 			<Switch>
-				<Match when={!currentUser()}>
+				<Match when={!persistedStore.currentUser}>
 					<div class='flex items-center gap-x-4'>
 						<button
-							onClick={() => setIsAuthModalOpen(true)}
+							onClick={() => setStore('authModalOpen', true)}
 							aria-label='login/sign-up'
 							class='group grid place-items-center rounded-full fill-white p-2 hover:bg-orange-600'
 						>
@@ -55,12 +46,12 @@ export default function TopBar() {
 						</button>
 						<Modal
 							Modal={AuthForms}
-							isOpen={isAuthModalOpen}
-							setIsOpen={setIsAuthModalOpen}
+							isOpen={store.authModalOpen}
+							close={() => setStore('authModalOpen', false)}
 						/>
 					</div>
 				</Match>
-				<Match when={currentUser()}>
+				<Match when={persistedStore.currentUser}>
 					<div class='relative'>
 						<button
 							onClick={() => setIsPopoverOpen(true)}
@@ -70,15 +61,15 @@ export default function TopBar() {
 							<h1 class='text-lg font-semibold capitalize'>
 								{
 									//@ts-expect-error - checked on match
-									currentUser().username
+									persistedStore.currentUser.username
 								}
 							</h1>
 						</button>
 
 						<Modal
 							Modal={AddBookForm}
-							isOpen={isAddBookModalOpen}
-							setIsOpen={setIsAddBookOpen}
+							isOpen={store.addBookModalOpen}
+							close={() => setStore('addBookModalOpen', false)}
 						/>
 
 						<Show when={isPopoverOpen()}>
@@ -87,7 +78,9 @@ export default function TopBar() {
 								class='absolute -right-6 z-10 mt-2 w-max rounded bg-neutral-800 py-4 font-semibold'
 							>
 								<button
-									onClick={() => setIsAddBookOpen(true)}
+									onClick={() =>
+										setStore('addBookModalOpen', true)
+									}
 									class='block px-6 py-2 text-left hover:bg-orange-600'
 								>
 									Add New Book

@@ -1,11 +1,7 @@
 import { kyBookDex } from '@/config/ky'
 import { ICurrentUser } from '@/definitions/interfaces'
 import { TextInput } from '@/shared/text-input'
-import {
-	currentUserSignalSetter,
-	disableAuthActionsSetter,
-	isAuthModalOpenSetter,
-} from '@/state/signals'
+import { setPersistedStore, setStore } from '@/store'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation } from '@tanstack/solid-query'
 import { createEffect } from 'solid-js'
@@ -24,16 +20,14 @@ export default function SignInForm() {
 		validate: valiForm(SignInFormSchema),
 	})
 
-	const setCurrentUser = currentUserSignalSetter
-	const setModalOpen = isAuthModalOpenSetter
 	const mutation = createMutation(() => ({
 		mutationFn: (data: TSignIn) =>
 			kyBookDex
 				.post('auth/sign-in', { json: data, credentials: 'include' })
 				.json<ICurrentUser>(),
 		onSuccess(currentUser) {
-			setCurrentUser(currentUser)
-			setModalOpen(false)
+			setPersistedStore('currentUser', currentUser)
+			setStore('authModalOpen', false)
 		},
 	}))
 
@@ -41,9 +35,8 @@ export default function SignInForm() {
 		mutation.mutate(data)
 	}
 
-	const setDisable = disableAuthActionsSetter
 	createEffect(() => {
-		mutation.isPending ? setDisable(true) : setDisable(false)
+		setStore('disableAuthActions', mutation.isPending)
 	})
 
 	return (

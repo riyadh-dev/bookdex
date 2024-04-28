@@ -1,7 +1,4 @@
-import {
-	disableAuthActionsAccessor,
-	isAuthModalOpenSetter,
-} from '@/state/signals'
+import { setStore, store } from '@/store'
 import { FaSolidXmark } from 'solid-icons/fa'
 import { Match, Show, Switch, createSignal } from 'solid-js'
 import SignInForm from './sign-in'
@@ -12,17 +9,14 @@ export default function AuthForms() {
 		'sign-up' | 'sign-in' | 'mock-list'
 	>('sign-in')
 
-	const setOpen = isAuthModalOpenSetter
-	const disabled = disableAuthActionsAccessor
-
 	return (
 		<div class='mx-auto max-w-xl rounded bg-neutral-800 p-6'>
 			<div class='relative py-6'>
 				<button
 					aria-label='close'
-					onClick={() => setOpen(false)}
-					disabled={disabled()}
-					class='absolute flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-gray-700'
+					onClick={() => setStore('authModalOpen', false)}
+					disabled={store.disableAuthActions}
+					class='absolute flex h-8 w-8 items-center justify-center rounded-full hover:bg-orange-600'
 				>
 					<FaSolidXmark fill='white' />
 				</button>
@@ -54,7 +48,7 @@ export default function AuthForms() {
 
 				<Show when={formType() !== 'mock-list'}>
 					<button
-						disabled={disabled()}
+						disabled={store.disableAuthActions}
 						onClick={() => setFormType('mock-list')}
 						class='relative h-12 w-full animate-pulse rounded border bg-white text-black'
 					>
@@ -68,7 +62,7 @@ export default function AuthForms() {
 				<Switch>
 					<Match when={formType() !== 'sign-up'}>
 						<button
-							disabled={disabled()}
+							disabled={store.disableAuthActions}
 							onClick={() => setFormType('sign-up')}
 							class='relative h-12 w-full rounded border border-white'
 						>
@@ -80,7 +74,7 @@ export default function AuthForms() {
 					</Match>
 					<Match when={formType() !== 'sign-in'}>
 						<button
-							disabled={disabled()}
+							disabled={store.disableAuthActions}
 							onClick={() => setFormType('sign-in')}
 							class='relative h-12 w-full rounded border border-black dark:border-white'
 						>

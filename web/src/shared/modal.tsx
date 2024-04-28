@@ -1,11 +1,11 @@
-import { Accessor, Component, Setter, Show } from 'solid-js'
+import { Component, Show } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { Transition } from 'solid-transition-group'
 
 interface IProps {
 	Modal: Component
-	isOpen: Accessor<boolean>
-	setIsOpen: Setter<boolean>
+	isOpen: boolean
+	close: () => void
 }
 
 export default function Modal(props: IProps) {
@@ -19,9 +19,9 @@ export default function Modal(props: IProps) {
 				exitClass='opacity-100'
 				exitToClass='opacity-0'
 			>
-				<Show when={props.isOpen()}>
+				<Show when={props.isOpen}>
 					<div
-						onClick={() => props.setIsOpen(false)}
+						onClick={() => props.close()}
 						class='fixed inset-0 bg-black/50'
 					/>
 				</Show>
@@ -34,7 +34,7 @@ export default function Modal(props: IProps) {
 				exitClass='translate-y-0'
 				exitToClass='translate-y-[calc(50vh+50%)]'
 			>
-				<Show when={props.isOpen()}>
+				<Show when={props.isOpen}>
 					<div class='fixed inset-0 m-auto h-fit max-w-xl'>
 						<props.Modal />
 					</div>

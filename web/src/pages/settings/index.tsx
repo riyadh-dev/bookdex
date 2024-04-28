@@ -1,3 +1,3 @@
 export default function SettingsPage() {
-	return <h1>Settings</h1>
+	return <p class='pt-14 text-center text-2xl font-semibold'>Settings Page</p>
 }

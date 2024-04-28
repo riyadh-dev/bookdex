@@ -1,7 +1,7 @@
 import { kyBookDex } from '@/config/ky'
 import { TextArea } from '@/shared/text-area'
 import { TextInput } from '@/shared/text-input'
-import { isAddBookModalOpenSetter } from '@/state/signals'
+import { setStore } from '@/store'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation } from '@tanstack/solid-query'
 import { FaSolidXmark } from 'solid-icons/fa'
@@ -21,13 +21,12 @@ export default function AddBookForm() {
 		validate: valiForm(CreateBookSchema),
 	})
 
-	const setModalOpen = isAddBookModalOpenSetter
 	const mutation = createMutation(() => ({
 		mutationFn: (data: TCreateBook) =>
 			kyBookDex
 				.post('books', { json: data, credentials: 'include' })
 				.json(),
-		onSuccess: () => setModalOpen(false),
+		onSuccess: () => setStore('addBookModalOpen', false),
 	}))
 
 	const handleSubmit = (data: TCreateBook) => {
@@ -39,7 +38,7 @@ export default function AddBookForm() {
 			<div class='relative py-6'>
 				<button
 					aria-label='close'
-					onClick={() => setModalOpen(false)}
+					onClick={() => setStore('addBookModalOpen', false)}
 					disabled={mutation.isPending}
 					class='absolute flex h-8 w-8 items-center justify-center rounded-full hover:bg-orange-600 hover:fill-white'
 				>
