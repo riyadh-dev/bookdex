@@ -97,14 +97,11 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 	expirationTime := time.Now().
 		Add(time.Hour * time.Duration(a.env.AUTH_EXP_HOUR))
 
-	claims := &models.JWTClaims{
-		UserID: user.ID.Hex(),
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
+	token := jwt.New(jwt.SigningMethodHS256)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["id"] = user.ID.Hex()
+	claims["exp"] = expirationTime.Unix()
 
 	// Generate encoded token and send it as response.
 	tokenString, err := token.SignedString([]byte(a.env.JWT_SECRET))

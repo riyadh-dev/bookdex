@@ -62,8 +62,11 @@ func registerHandlers(
 	booksRouter.Post("/", authMiddleware.IsAuth(), booksHandlers.Create)
 	booksRouter.Get("/", booksHandlers.GetAll)
 	booksRouter.Get("/:id", booksHandlers.GetById)
+	booksRouter.Get("/author/:id", booksHandlers.GetBySubmitterId)
 	booksRouter.Patch("/:id", authMiddleware.IsAuth(), authMiddleware.IsBookOwner(), booksHandlers.Update)
 	booksRouter.Delete("/:id", authMiddleware.IsAuth(), booksHandlers.Delete)
+	booksRouter.Patch("/:id/bookmark", authMiddleware.IsAuth(), booksHandlers.Bookmark)
+	booksRouter.Patch("/:id/unbookmark", authMiddleware.IsAuth(), booksHandlers.Unbookmark)
 
 }
 

@@ -32,7 +32,8 @@ func (a *Auth) IsBookOwner() func(*fiber.Ctx) error {
 		TokenLookup:  "cookie:JWT",
 		SuccessHandler: func(ctx *fiber.Ctx) error {
 			bookId := ctx.Params("id")
-			userId := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)["userId"].(string)
+			claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
+			userId := claims["id"].(string)
 
 			book, err := a.booksStorage.GetById(bookId)
 			if err != nil {

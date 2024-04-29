@@ -8,7 +8,7 @@ type User struct {
 	Username string             `json:"username"`
 	Password string             `json:"password"`
 
-	SubmittedBooks []primitive.ObjectID `json:"submittedBooks" bson:"submittedBooks,omitempty"`
+	BookmarkIDs []primitive.ObjectID `json:"bookmarkIds" bson:"bookmarkIds,omitempty"`
 }
 
 type InsertUserInput struct {

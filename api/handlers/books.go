@@ -52,6 +52,22 @@ func (b *Books) GetById(ctx *fiber.Ctx) error {
 	return ctx.JSON(book)
 }
 
+func (b *Books) GetBySubmitterId(ctx *fiber.Ctx) error {
+	book, err := b.booksStorage.GetBySubmitterId(ctx.Params("id"))
+	if err != nil {
+		switch err {
+		case b.customErrors.ErrNotFound:
+			return fiber.ErrNotFound
+		case b.customErrors.ErrInvalidId:
+			return fiber.ErrBadRequest
+		default:
+			return fiber.ErrInternalServerError
+		}
+	}
+
+	return ctx.JSON(book)
+}
+
 func (b *Books) Create(ctx *fiber.Ctx) error {
 	var requestBody models.InsertBookReqInput
 	err := ctx.BodyParser(&requestBody)
@@ -59,7 +75,8 @@ func (b *Books) Create(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	submitterId := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)["userId"].(string)
+	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
+	submitterId := claims["id"].(string)
 	objectId, err := primitive.ObjectIDFromHex(submitterId)
 	if err != nil {
 		return fiber.ErrBadRequest
@@ -114,6 +131,44 @@ func (b *Books) Update(ctx *fiber.Ctx) error {
 
 func (b *Books) Delete(ctx *fiber.Ctx) error {
 	err := b.booksStorage.Delete(ctx.Params("id"))
+	if err != nil {
+		switch err {
+		case b.customErrors.ErrNotFound:
+			return fiber.ErrNotFound
+		case b.customErrors.ErrInvalidId:
+			return fiber.ErrBadRequest
+		default:
+			return fiber.ErrInternalServerError
+		}
+	}
+
+	return ctx.SendStatus(fiber.StatusOK)
+}
+
+func (b *Books) Bookmark(ctx *fiber.Ctx) error {
+	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
+	userId := claims["id"].(string)
+
+	err := b.booksStorage.Bookmark(ctx.Params("id"), userId)
+	if err != nil {
+		switch err {
+		case b.customErrors.ErrNotFound:
+			return fiber.ErrNotFound
+		case b.customErrors.ErrInvalidId:
+			return fiber.ErrBadRequest
+		default:
+			return fiber.ErrInternalServerError
+		}
+	}
+
+	return ctx.SendStatus(fiber.StatusOK)
+}
+
+func (b *Books) Unbookmark(ctx *fiber.Ctx) error {
+	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
+	userId := claims["id"].(string)
+
+	err := b.booksStorage.Unbookmark(ctx.Params("id"), userId)
 	if err != nil {
 		switch err {
 		case b.customErrors.ErrNotFound:

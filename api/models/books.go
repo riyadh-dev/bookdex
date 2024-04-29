@@ -11,7 +11,8 @@ type Book struct {
 	Cover    string             `           json:"cover"`
 	Synopsis string             `           json:"synopsis"`
 
-	SubmitterID primitive.ObjectID `json:"submitterId" bson:"submitterId"`
+	SubmitterID   primitive.ObjectID   `json:"submitterId" bson:"submitterId"`
+	BookmarkerIDs []primitive.ObjectID `json:"bookmarkerIds" bson:"bookmarkerIds"`
 }
 
 type InsertBookReqInput struct {
