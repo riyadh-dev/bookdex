@@ -43,6 +43,7 @@ func newFiberApp(lifecycle fx.Lifecycle, env *config.Env) *fiber.App {
 
 func registerHandlers(
 	app *fiber.App,
+	usersHandlers *handlers.Users,
 	booksHandlers *handlers.Books,
 	authHandlers *handlers.Auth,
 	authMiddleware *middleware.Auth,
@@ -57,6 +58,9 @@ func registerHandlers(
 	authRouter.Post("/sign-up", authHandlers.SignUp)
 	authRouter.Post("/sign-in", authHandlers.SignIn)
 	authRouter.Delete("/sign-out", authHandlers.SignOut)
+
+	usersRouter := api.Group("/users")
+	usersRouter.Patch("/:id", authMiddleware.IsAuth(), usersHandlers.Update)
 
 	booksRouter := api.Group("/books")
 	booksRouter.Post("/", authMiddleware.IsAuth(), booksHandlers.Create)

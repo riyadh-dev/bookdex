@@ -121,6 +121,8 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 	return ctx.JSON(fiber.Map{
 		"id":       user.ID.Hex(),
 		"username": user.Username,
+		"email":    user.Email,
+		"avatar":   user.Avatar,
 		"exp":      expirationTime.Unix(),
 	})
 }

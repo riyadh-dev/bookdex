@@ -51,3 +51,28 @@ func (u *Users) GetByEmail(email string) (*models.User, error) {
 
 	return user, nil
 }
+
+func (u *Users) Update(id string, input *models.UpdateUserInput) error {
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	_, err = u.dbColl.UpdateOne(context.Background(), bson.M{"_id": objectId}, bson.M{"$set": *input})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *Users) GetById(id string) (*models.User, error) {
+	user := new(models.User)
+	err := u.dbColl.FindOne(context.Background(), bson.M{"_id": id}).
+		Decode(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
