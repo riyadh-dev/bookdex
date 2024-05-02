@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/riyadh-dev/bookdex/api/config"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/fx"
@@ -23,6 +24,14 @@ func newDataBase(lifecycle fx.Lifecycle, env *config.Env) *mongo.Database {
 
 	lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
+			_, err = db.Collection("users").Indexes().CreateOne(
+				context.Background(),
+				mongo.IndexModel{
+					Keys:    bson.D{{Key: "email", Value: 1}},
+					Options: options.Index().SetUnique(true),
+				},
+			)
+
 			return err
 		},
 		OnStop: func(ctx context.Context) error {
