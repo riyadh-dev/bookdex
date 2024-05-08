@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/sync/errgroup"
 )
 
 type Books struct {
@@ -86,8 +87,25 @@ func (b *Books) GetBySubmitterId(id string) (*[]models.Book, error) {
 	return &books, nil
 }
 
-func (b *Books) Create(input *models.InsertBookStorageInput) (string, error) {
-	result, err := b.dbColl.InsertOne(context.Background(), input)
+func (b *Books) Create(
+	submitterId string,
+	input *models.InsertBookReqInput,
+) (string, error) {
+	submitterObjId, err := primitive.ObjectIDFromHex(submitterId)
+	if err != nil {
+		return "", b.customErrors.ErrInvalidId
+	}
+
+	storageInput := &models.InsertBookStorageInput{
+		Title:    input.Title,
+		Author:   input.Author,
+		Cover:    input.Cover,
+		Synopsis: input.Synopsis,
+
+		SubmitterID: submitterObjId,
+	}
+
+	result, err := b.dbColl.InsertOne(context.Background(), storageInput)
 	if err != nil {
 		return "", err
 	}
@@ -140,21 +158,27 @@ func (b *Books) Bookmark(bookId string, userId string) error {
 		return b.customErrors.ErrInvalidId
 	}
 
-	_, err = b.dbColl.UpdateOne(
-		context.Background(),
-		bson.M{"_id": objectBookId},
-		bson.M{"$addToSet": bson.M{"bookmarkerIds": objectUserId}},
-	)
-	if err != nil {
-		return err
-	}
+	eg := errgroup.Group{}
 
-	_, err = b.dbUsersColl.UpdateOne(
-		context.Background(),
-		bson.M{"_id": objectUserId},
-		bson.M{"$addToSet": bson.M{"bookmarkIds": objectBookId}},
-	)
-	if err != nil {
+	eg.Go(func() error {
+		_, err = b.dbColl.UpdateOne(
+			context.Background(),
+			bson.M{"_id": objectBookId},
+			bson.M{"$addToSet": bson.M{"bookmarkerIds": objectUserId}},
+		)
+		return err
+	})
+
+	eg.Go(func() error {
+		_, err = b.dbUsersColl.UpdateOne(
+			context.Background(),
+			bson.M{"_id": objectUserId},
+			bson.M{"$addToSet": bson.M{"bookmarkIds": objectBookId}},
+		)
+		return err
+	})
+
+	if err := eg.Wait(); err != nil {
 		return err
 	}
 

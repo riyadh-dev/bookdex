@@ -15,28 +15,31 @@ type Auth struct {
 	env          *config.Env
 	validator    *config.Validator
 	usersStorage *storage.Users
+	customErrors *config.CustomErrors
 }
 
 func newAuth(
 	env *config.Env,
 	validator *config.Validator,
 	usersStorage *storage.Users,
+	customErrors *config.CustomErrors,
 ) *Auth {
 	return &Auth{
 		env:          env,
 		validator:    validator,
 		usersStorage: usersStorage,
+		customErrors: customErrors,
 	}
 }
 
 func (a *Auth) SignUp(ctx *fiber.Ctx) error {
-	var requestBody models.InsertUserInput
-	err := ctx.BodyParser(&requestBody)
+	requestBody := new(models.InsertUserInput)
+	err := ctx.BodyParser(requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
 
-	err = a.validator.Validate(&requestBody)
+	err = a.validator.Validate(requestBody)
 	if err != nil {
 		return &fiber.Error{
 			Code:    fiber.ErrBadRequest.Code,
@@ -53,27 +56,25 @@ func (a *Auth) SignUp(ctx *fiber.Ctx) error {
 	}
 
 	requestBody.Password = string(hashedPassword)
-	id, err := a.usersStorage.Create(&requestBody)
+	id, err := a.usersStorage.Create(requestBody)
 	if err != nil {
-		if err.Error() == "duplicate key" {
+		if err == a.customErrors.ErrDuplicateKey {
 			return fiber.ErrConflict
 		}
 		return fiber.ErrInternalServerError
 	}
 
-	return ctx.JSON(fiber.Map{
-		"id": id,
-	})
+	return ctx.JSON(fiber.Map{"id": id})
 }
 
 func (a *Auth) SignIn(ctx *fiber.Ctx) error {
-	var requestBody models.SignInInput
-	err := ctx.BodyParser(&requestBody)
+	requestBody := new(models.SignInInput)
+	err := ctx.BodyParser(requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
 
-	err = a.validator.Validate(&requestBody)
+	err = a.validator.Validate(requestBody)
 	if err != nil {
 		return &fiber.Error{
 			Code:    fiber.ErrBadRequest.Code,

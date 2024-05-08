@@ -14,7 +14,10 @@ type Users struct {
 	customErrors *config.CustomErrors
 }
 
-func newUsers(usersStorage *storage.Users, customErrors *config.CustomErrors) *Users {
+func newUsers(
+	usersStorage *storage.Users,
+	customErrors *config.CustomErrors,
+) *Users {
 	return &Users{
 		usersStorage: usersStorage,
 		customErrors: customErrors,
@@ -32,7 +35,7 @@ func (u *Users) Update(ctx *fiber.Ctx) error {
 	}
 
 	requestBody := new(models.UpdateUserInput)
-	err := ctx.BodyParser(&requestBody)
+	err := ctx.BodyParser(requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
 	}

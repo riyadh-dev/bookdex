@@ -2,8 +2,8 @@ package storage
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/riyadh-dev/bookdex/api/config"
 	"github.com/riyadh-dev/bookdex/api/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,19 +11,19 @@ import (
 )
 
 type Users struct {
-	dbColl *mongo.Collection
+	dbColl       *mongo.Collection
+	customErrors *config.CustomErrors
 }
 
-func newUsers(db *mongo.Database) *Users {
-	return &Users{dbColl: db.Collection("users")}
+func newUsers(db *mongo.Database, customErrors *config.CustomErrors) *Users {
+	return &Users{dbColl: db.Collection("users"), customErrors: customErrors}
 }
 
 func (u *Users) Create(input *models.InsertUserInput) (string, error) {
 	result, err := u.dbColl.InsertOne(context.Background(), *input)
 	if err != nil {
 		if mongo.IsDuplicateKeyError(err) {
-			// TODO look for a better approach
-			return "", fmt.Errorf("duplicate key")
+			return "", u.customErrors.ErrDuplicateKey
 		}
 		return "", err
 	}
@@ -58,7 +58,11 @@ func (u *Users) Update(id string, input *models.UpdateUserInput) error {
 		return err
 	}
 
-	_, err = u.dbColl.UpdateOne(context.Background(), bson.M{"_id": objectId}, bson.M{"$set": *input})
+	_, err = u.dbColl.UpdateOne(
+		context.Background(),
+		bson.M{"_id": objectId},
+		bson.M{"$set": *input},
+	)
 	if err != nil {
 		return err
 	}

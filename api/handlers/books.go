@@ -6,7 +6,6 @@ import (
 	"github.com/riyadh-dev/bookdex/api/config"
 	"github.com/riyadh-dev/bookdex/api/models"
 	"github.com/riyadh-dev/bookdex/api/storage"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Books struct {
@@ -69,29 +68,16 @@ func (b *Books) GetBySubmitterId(ctx *fiber.Ctx) error {
 }
 
 func (b *Books) Create(ctx *fiber.Ctx) error {
-	var requestBody models.InsertBookReqInput
-	err := ctx.BodyParser(&requestBody)
+	requestBody := new(models.InsertBookReqInput)
+	err := ctx.BodyParser(requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
 
 	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
 	submitterId := claims["id"].(string)
-	objectId, err := primitive.ObjectIDFromHex(submitterId)
-	if err != nil {
-		return fiber.ErrBadRequest
-	}
 
-	storageInput := &models.InsertBookStorageInput{
-		Title:    requestBody.Title,
-		Author:   requestBody.Author,
-		Cover:    requestBody.Cover,
-		Synopsis: requestBody.Synopsis,
-
-		SubmitterID: objectId,
-	}
-
-	err = b.validator.Validate(storageInput)
+	err = b.validator.Validate(requestBody)
 	if err != nil {
 		return &fiber.Error{
 			Code:    fiber.ErrBadRequest.Code,
@@ -99,7 +85,7 @@ func (b *Books) Create(ctx *fiber.Ctx) error {
 		}
 	}
 
-	id, err := b.booksStorage.Create(storageInput)
+	id, err := b.booksStorage.Create(submitterId, requestBody)
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}
@@ -109,7 +95,7 @@ func (b *Books) Create(ctx *fiber.Ctx) error {
 
 func (b *Books) Update(ctx *fiber.Ctx) error {
 	requestBody := new(models.UpdateBookInput)
-	err := ctx.BodyParser(&requestBody)
+	err := ctx.BodyParser(requestBody)
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
