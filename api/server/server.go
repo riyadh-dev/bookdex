@@ -28,6 +28,7 @@ func newFiberApp(
 	authHandlers *handlers.Auth,
 	authMiddleware *middleware.Auth,
 	commentsHandlers *handlers.Comments,
+	ratingsHandlers *handlers.Ratings,
 ) *fiber.App {
 	app := fiber.New(fiber.Config{
 		JSONEncoder: sonic.Marshal,
@@ -102,9 +103,33 @@ func newFiberApp(
 		"/:id/comments",
 		commentsHandlers.GetAllByBookId,
 	)
+	booksRouter.Post(
+		"/:id/ratings",
+		authMiddleware.IsAuth(),
+		ratingsHandlers.Create,
+	)
+	booksRouter.Patch(
+		"/:id/ratings",
+		authMiddleware.IsAuth(),
+		ratingsHandlers.Update,
+	)
+	booksRouter.Get(
+		"/:id/ratings",
+		authMiddleware.IsAuth(),
+		ratingsHandlers.GetByBookIdAndRaterId,
+	)
+	booksRouter.Delete(
+		"/:id/ratings",
+		authMiddleware.IsAuth(),
+		ratingsHandlers.Delete,
+	)
 
 	commentsRouter := api.Group("/comments")
-	commentsRouter.Patch("/:id", authMiddleware.IsAuth(), commentsHandlers.Update)
+	commentsRouter.Patch(
+		"/:id",
+		authMiddleware.IsAuth(),
+		commentsHandlers.Update,
+	)
 	commentsRouter.Delete(
 		"/:id",
 		authMiddleware.IsAuth(),

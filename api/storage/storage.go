@@ -8,4 +8,5 @@ var FxModule = fx.Options(
 	fx.Provide(newBooks),
 	fx.Provide(newUsers),
 	fx.Provide(newComments),
+	fx.Provide(newRatings),
 )
