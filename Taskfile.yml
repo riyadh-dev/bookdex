@@ -1,0 +1,52 @@
+version: '3'
+
+output: prefixed
+
+tasks:
+  dev:
+    desc: "start api and web dev servers"
+    deps: [dev:web, dev:api]
+
+  dev:web:
+    desc: "start a web dev server"
+    dir: web
+    cmds:
+      - bun dev:bun
+
+  dev:api:
+    desc: "start an api dev server"
+    dir: api
+    cmds:
+      - air
+
+  build:
+    desc: "build the project"
+    deps: [build:web, build:api]
+
+  build:web:
+    desc: "build the web project"
+    dir: web
+    cmds:
+      - bun run build
+
+  build:api:
+    desc: "build the api project"
+    dir: api
+    cmds:
+      - go build
+
+  format:
+    desc: "format project"
+    deps: [format:web, format:api]
+
+  format:web:
+    desc: "format web dir"
+    dir: web
+    cmds:
+      - bun format
+
+  format:api:
+    desc: "format api dir"
+    dir: api
+    cmds:
+      - golines . -w -m 80
