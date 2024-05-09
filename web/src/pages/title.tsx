@@ -2,7 +2,8 @@ import EditBookForm from '@/components/edit-book'
 import Modal from '@/components/modal'
 import { TextArea } from '@/components/text-area'
 import { api, getFetcher } from '@/config/ky'
-import { IBook, IComment } from '@/definitions/interfaces'
+import { IBook, IComment, IRating } from '@/definitions/interfaces'
+import clickOutside from '@/libs/click-outside'
 import { persistedStore } from '@/store'
 import { SubmitHandler, createForm, valiForm } from '@modular-forms/solid'
 import { useParams } from '@solidjs/router'
@@ -11,16 +12,19 @@ import {
 	createQuery,
 	useQueryClient,
 } from '@tanstack/solid-query'
+import clsx from 'clsx'
 import dayjs from 'dayjs'
+import { AiOutlineStar } from 'solid-icons/ai'
 import { FaRegularBookmark } from 'solid-icons/fa'
-import { FiEdit3, FiShoppingCart } from 'solid-icons/fi'
+import { FiEdit2, FiShoppingCart } from 'solid-icons/fi'
+import { ImSpinner8 } from 'solid-icons/im'
 import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
 export default function TitlePage() {
 	const params = useParams()
 
-	const query = createQuery(() => ({
+	const bookQuery = createQuery(() => ({
 		queryKey: ['book', params.id],
 		queryFn: () => getFetcher<IBook>(`books/${params.id}`),
 	}))
@@ -45,7 +49,7 @@ export default function TitlePage() {
 	const [isBookmarked, setIsBookmarked] = createSignal(false)
 
 	createEffect(() => {
-		const bookmarkerIds = query.data?.bookmarkerIds
+		const bookmarkerIds = bookQuery.data?.bookmarkerIds
 		const userId = persistedStore.currentUser?.id
 
 		if (bookmarkerIds && userId)
@@ -53,6 +57,12 @@ export default function TitlePage() {
 	})
 
 	const [editDialogOpen, setEditDialogOpen] = createSignal(false)
+
+	const ratingQuery = createQuery(() => ({
+		queryKey: ['ratings', params.id],
+		queryFn: () => getFetcher<IRating>(`books/${params.id}/ratings`),
+		enabled: !!persistedStore.currentUser,
+	}))
 
 	return (
 		<Switch
@@ -62,33 +72,35 @@ export default function TitlePage() {
 				</h1>
 			}
 		>
-			<Match when={query.isLoading}>
+			<Match when={bookQuery.isLoading}>
 				<h1 class='pt-14 text-center text-3xl font-semibold text-teal-600'>
 					Loading..
 				</h1>
 			</Match>
 
-			<Match when={query.isSuccess}>
+			<Match when={bookQuery.isSuccess}>
 				<main class='relative'>
 					<img
-						src={query.data?.cover}
+						src={bookQuery.data?.cover}
 						alt='cover'
 						class='absolute -z-10 h-80 w-full rounded object-cover opacity-50 blur'
 					/>
 					<div class='flex gap-x-6 px-12 pt-24'>
 						<img
-							src={query.data?.cover}
+							src={bookQuery.data?.cover}
 							alt='cover'
 							class='w-48 rounded'
 						/>
 						<div class='flex flex-col'>
 							<h1 class='text-6xl font-bold'>
-								{query.data?.title}
+								{bookQuery.data?.title}
 							</h1>
 
-							<h2 class='pt-32 text-lg'>{query.data?.author}</h2>
+							<h2 class='pt-32 text-lg'>
+								{bookQuery.data?.author}
+							</h2>
 
-							<div class='mt-auto flex gap-x-2'>
+							<div class='mt-auto flex gap-x-2 font-semibold'>
 								<button
 									onClick={() =>
 										isBookmarked()
@@ -98,7 +110,7 @@ export default function TitlePage() {
 									disabled={
 										bookmarkMutation.isPending ||
 										unbookmarkMutation.isPending ||
-										query.isPending
+										bookQuery.isPending
 									}
 									class='flex items-center gap-x-2 rounded bg-orange-600 px-6 py-3 disabled:grayscale'
 								>
@@ -108,39 +120,34 @@ export default function TitlePage() {
 									{isBookmarked() ? 'Unbookmark' : 'Bookmark'}
 								</button>
 
-								{/*<select
-									//{...props}
-									//disabled={mutation.isPending}
-									class='appearance-none rounded bg-neutral-600 px-4 py-3 font-semibold'
-								>
-									<option value='' class='hidden' aria-hidden>
-										Rate the book
-									</option>
-									<For each={ITEMS}>
-										{(item) => (
-											<option
-												value={item.value}
-												//selected={
-												//field.value === item.value
-												//}
-												class='bg-neutral-600'
-											>
-												{item.label}
-											</option>
-										)}
-									</For>
-									</select>*/}
-
-								<button class='flex items-center gap-x-2 rounded bg-orange-600 px-6 py-3'>
-									<span>
-										<FiShoppingCart />
-									</span>
-									Buy
-								</button>
+								<Switch>
+									<Match
+										when={
+											ratingQuery.isPending ||
+											ratingQuery.isRefetching
+										}
+									>
+										<button
+											disabled
+											class='flex items-center gap-x-2 rounded bg-neutral-500 px-3 py-3'
+										>
+											<ImSpinner8
+												size={24}
+												class='animate-spin'
+											/>
+										</button>
+									</Match>
+									<Match when={ratingQuery.isSuccess}>
+										<RatingButton
+											bookId={params.id}
+											rating={ratingQuery.data?.value}
+										/>
+									</Match>
+								</Switch>
 
 								<Show
 									when={
-										query.data?.submitterId ===
+										bookQuery.data?.submitterId ===
 										persistedStore.currentUser?.id
 									}
 								>
@@ -149,16 +156,23 @@ export default function TitlePage() {
 										class='flex items-center gap-x-2 rounded bg-orange-600 px-6 py-3'
 									>
 										<span>
-											<FiEdit3 />
+											<FiEdit2 />
 										</span>
 										Edit
 									</button>
 								</Show>
+
+								<button class='flex items-center gap-x-2 rounded bg-orange-600 px-6 py-3'>
+									<span>
+										<FiShoppingCart />
+									</span>
+									Buy
+								</button>
 							</div>
 						</div>
 					</div>
 
-					<p class='px-8 pt-6 text-lg'>{query.data?.synopsis}</p>
+					<p class='px-8 pt-6 text-lg'>{bookQuery.data?.synopsis}</p>
 
 					<div class='p-8'>
 						<div class='w-full border-t border-neutral-600' />
@@ -170,13 +184,13 @@ export default function TitlePage() {
 						<Comments bookId={params.id} />
 					</div>
 
-					<Show when={query.data}>
+					<Show when={bookQuery.data}>
 						<Modal
 							isOpen={editDialogOpen()}
 							close={() => setEditDialogOpen(false)}
 							Modal={() => (
 								<EditBookForm
-									book={query.data!}
+									book={bookQuery.data!}
 									close={() => setEditDialogOpen(false)}
 								/>
 							)}
@@ -185,6 +199,113 @@ export default function TitlePage() {
 				</main>
 			</Match>
 		</Switch>
+	)
+}
+
+const ITEMS = [
+	{ value: 10, label: '(10) Masterpiece' },
+	{ value: 9, label: '(9) Great' },
+	{ value: 8, label: '(8) Very Good' },
+	{ value: 7, label: '(7) Good' },
+	{ value: 6, label: '(6) Fine' },
+	{ value: 5, label: '(5) Average' },
+	{ value: 4, label: '(4) Bad' },
+	{ value: 3, label: '(3) Very Bad' },
+	{ value: 2, label: '(2) Horrible' },
+	{ value: 1, label: '(1) Appalling' },
+] as const
+
+function RatingButton(props: { bookId: string; rating?: number }) {
+	const [isPopoverOpen, setIsPopoverOpen] = createSignal(false)
+
+	const queryClient = useQueryClient()
+	function onSuccess() {
+		queryClient.invalidateQueries({ queryKey: ['ratings', props.bookId] })
+	}
+
+	const postMutation = createMutation(() => ({
+		mutationFn: (rating: number) =>
+			api
+				.post(`books/${props.bookId}/ratings`, {
+					json: { value: rating },
+				})
+				.text(),
+		onSuccess,
+	}))
+
+	const patchMutation = createMutation(() => ({
+		mutationFn: (rating: number) =>
+			api
+				.patch(`books/${props.bookId}/ratings`, {
+					json: { value: rating },
+				})
+				.text(),
+		onSuccess,
+	}))
+
+	const deleteMutation = createMutation(() => ({
+		mutationFn: () => api.delete(`books/${props.bookId}/ratings`).text(),
+		onSuccess,
+	}))
+
+	clickOutside //preserve import
+
+	const isPending =
+		postMutation.isPending ||
+		patchMutation.isPending ||
+		deleteMutation.isPending
+
+	return (
+		<div class='relative'>
+			<button
+				disabled={isPending}
+				onClick={() => setIsPopoverOpen(true)}
+				class={clsx(
+					props.rating ? 'bg-orange-600' : 'bg-neutral-600',
+					'flex items-center gap-x-2 rounded px-3 py-3 disabled:opacity-50 disabled:grayscale'
+				)}
+			>
+				<AiOutlineStar size={24} />
+				{props.rating && (
+					<span class='font-semibold leading-none'>
+						{props.rating}
+					</span>
+				)}
+			</button>
+
+			<Show when={isPopoverOpen()}>
+				<div
+					onClick={() => setIsPopoverOpen(false)}
+					use:clickOutside={() => setIsPopoverOpen(false)}
+					class='absolute right-1/2 z-10 mt-2 w-max translate-x-1/2 rounded bg-neutral-600 font-semibold'
+				>
+					<For each={ITEMS}>
+						{(item) => (
+							<button
+								disabled={isPending}
+								onClick={() =>
+									props.rating
+										? patchMutation.mutate(item.value)
+										: postMutation.mutate(item.value)
+								}
+								class='block w-full px-4 py-2 text-left transition-colors hover:bg-orange-600'
+							>
+								{item.label}
+							</button>
+						)}
+					</For>
+					{props.rating && (
+						<button
+							disabled={isPending}
+							onClick={() => deleteMutation.mutate(undefined)}
+							class='block w-full px-4 py-2 text-left transition-colors hover:bg-orange-600'
+						>
+							Remove Rating
+						</button>
+					)}
+				</div>
+			</Show>
+		</div>
 	)
 }
 
@@ -422,16 +543,3 @@ function Comment(props: { comment: IComment; bookId: string }) {
 		</li>
 	)
 }
-
-/*const ITEMS = [
-	{ value: '10', label: '(10) Masterpiece' },
-	{ value: '9', label: '(9) Great' },
-	{ value: '8', label: '(8) Very Goo' },
-	{ value: '7', label: '(7) Good' },
-	{ value: '6', label: '(6) Fine' },
-	{ value: '5', label: '(5) Average' },
-	{ value: '4', label: '(4) Bad' },
-	{ value: '3', label: '(3) Very Bad' },
-	{ value: '2', label: '(2) Horrible' },
-	{ value: '1', label: '(1) Appalling' },
-] as const*/

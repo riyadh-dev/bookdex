@@ -7,6 +7,10 @@ export interface IBook {
 
 	submitterId: string
 	bookmarkerIds: string[]
+	ratings?: {
+		raterId: string
+		value: number
+	}[]
 }
 
 export interface ICurrentUser {
@@ -26,4 +30,10 @@ export interface IComment {
 		username: string
 		avatar: string
 	}
+}
+
+export interface IRating {
+	bookId: string
+	raterId: string
+	value: number
 }
