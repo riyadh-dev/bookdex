@@ -138,3 +138,15 @@ func (r *Comments) Update(id string, input *models.UpdateCommentInput) error {
 
 	return err
 }
+
+func (r *Comments) Delete(id string) error {
+
+	commentID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return r.customErrors.ErrInvalidId
+	}
+
+	_, err = r.dbColl.DeleteOne(context.Background(), bson.M{"_id": commentID})
+
+	return err
+}

@@ -103,6 +103,14 @@ func newFiberApp(
 		commentsHandlers.GetAllByBookId,
 	)
 
+	commentsRouter := api.Group("/comments")
+	commentsRouter.Patch("/:id", authMiddleware.IsAuth(), commentsHandlers.Update)
+	commentsRouter.Delete(
+		"/:id",
+		authMiddleware.IsAuth(),
+		commentsHandlers.Delete,
+	)
+
 	return app
 }
 

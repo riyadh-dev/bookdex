@@ -70,9 +70,9 @@ func (r *Comments) Update(ctx *fiber.Ctx) error {
 	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
 	userId := claims["id"].(string)
 
-	bookId := ctx.Params("bookId")
+	commentId := ctx.Params("id")
 
-	comment, err := r.commentsStorage.GetById(bookId)
+	comment, err := r.commentsStorage.GetById(commentId)
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}
@@ -81,7 +81,7 @@ func (r *Comments) Update(ctx *fiber.Ctx) error {
 		return fiber.ErrForbidden
 	}
 
-	err = r.commentsStorage.Update(bookId, requestBody)
+	err = r.commentsStorage.Update(commentId, requestBody)
 	if err != nil {
 		switch err {
 		case r.customErrors.ErrNotFound:
@@ -91,6 +91,39 @@ func (r *Comments) Update(ctx *fiber.Ctx) error {
 		default:
 			return fiber.ErrInternalServerError
 		}
+	}
+
+	return ctx.SendStatus(fiber.StatusOK)
+}
+
+func (r *Comments) Delete(ctx *fiber.Ctx) error {
+	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
+	userId := claims["id"].(string)
+
+	commentId := ctx.Params("id")
+
+	comment, err := r.commentsStorage.GetById(commentId)
+	if err != nil {
+		switch err {
+		case r.customErrors.ErrNotFound:
+			return fiber.ErrNotFound
+		case r.customErrors.ErrInvalidId:
+			return fiber.ErrBadRequest
+		default:
+			return fiber.ErrInternalServerError
+		}
+	}
+
+	if comment.AuthorID.Hex() != userId {
+		return fiber.ErrForbidden
+	}
+
+	err = r.commentsStorage.Delete(commentId)
+	if err != nil {
+		if err == r.customErrors.ErrInvalidId {
+			return fiber.ErrBadRequest
+		}
+		return fiber.ErrInternalServerError
 	}
 
 	return ctx.SendStatus(fiber.StatusOK)
