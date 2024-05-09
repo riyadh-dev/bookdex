@@ -35,6 +35,18 @@ func (b *Books) GetAll(ctx *fiber.Ctx) error {
 	return ctx.JSON(books)
 }
 
+func (b *Books) GetAllBookmarked(ctx *fiber.Ctx) error {
+	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
+	userId := claims["id"].(string)
+
+	books, err := b.booksStorage.GetAllBookmarked(userId)
+	if err != nil {
+		return fiber.ErrInternalServerError
+	}
+
+	return ctx.JSON(books)
+}
+
 func (b *Books) GetById(ctx *fiber.Ctx) error {
 	book, err := b.booksStorage.GetById(ctx.Params("id"))
 	if err != nil {

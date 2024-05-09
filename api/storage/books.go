@@ -43,6 +43,28 @@ func (b *Books) GetAll(query string) (*[]models.Book, error) {
 	return &books, nil
 }
 
+func (b *Books) GetAllBookmarked(userId string) (*[]models.Book, error) {
+	userObjId, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return nil, b.customErrors.ErrInvalidId
+	}
+
+	books := make([]models.Book, 0)
+	cursor, err := b.dbColl.Find(context.Background(), bson.M{
+		"bookmarkerIds": bson.M{"$in": []primitive.ObjectID{userObjId}},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = cursor.All(context.Background(), &books)
+	if err != nil {
+		return nil, err
+	}
+
+	return &books, nil
+}
+
 func (b *Books) GetById(id string) (*models.Book, error) {
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
