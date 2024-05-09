@@ -3,12 +3,11 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type User struct {
-	ID          primitive.ObjectID   `json:"id"          bson:"_id"`
-	Email       string               `json:"email"`
-	Username    string               `json:"username"`
-	Avatar      string               `json:"avatar"`
-	Password    string               `json:"password"`
-	BookmarkIDs []primitive.ObjectID `json:"bookmarkIds" bson:"bookmarkIds,omitempty"`
+	ID       primitive.ObjectID `json:"id"       bson:"_id"`
+	Email    string             `json:"email"`
+	Username string             `json:"username"`
+	Avatar   string             `json:"avatar"`
+	Password string             `json:"password"`
 }
 
 type InsertUserInput struct {

@@ -8,19 +8,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/sync/errgroup"
 )
 
 type Books struct {
 	dbColl       *mongo.Collection
-	dbUsersColl  *mongo.Collection
 	customErrors *config.CustomErrors
 }
 
 func newBooks(db *mongo.Database, customErrors *config.CustomErrors) *Books {
 	return &Books{
 		dbColl:       db.Collection("books"),
-		dbUsersColl:  db.Collection("users"),
 		customErrors: customErrors,
 	}
 }
@@ -180,27 +177,12 @@ func (b *Books) Bookmark(bookId string, userId string) error {
 		return b.customErrors.ErrInvalidId
 	}
 
-	eg := errgroup.Group{}
-
-	eg.Go(func() error {
-		_, err = b.dbColl.UpdateOne(
-			context.Background(),
-			bson.M{"_id": objectBookId},
-			bson.M{"$addToSet": bson.M{"bookmarkerIds": objectUserId}},
-		)
-		return err
-	})
-
-	eg.Go(func() error {
-		_, err = b.dbUsersColl.UpdateOne(
-			context.Background(),
-			bson.M{"_id": objectUserId},
-			bson.M{"$addToSet": bson.M{"bookmarkIds": objectBookId}},
-		)
-		return err
-	})
-
-	if err := eg.Wait(); err != nil {
+	_, err = b.dbColl.UpdateOne(
+		context.Background(),
+		bson.M{"_id": objectBookId},
+		bson.M{"$addToSet": bson.M{"bookmarkerIds": objectUserId}},
+	)
+	if err != nil {
 		return err
 	}
 
@@ -222,15 +204,6 @@ func (b *Books) Unbookmark(bookId string, userId string) error {
 		context.Background(),
 		bson.M{"_id": objectBookId},
 		bson.M{"$pull": bson.M{"bookmarkerIds": objectUserId}},
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = b.dbUsersColl.UpdateOne(
-		context.Background(),
-		bson.M{"_id": objectUserId},
-		bson.M{"$pull": bson.M{"bookmarkIds": objectBookId}},
 	)
 	if err != nil {
 		return err
