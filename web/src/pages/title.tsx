@@ -188,66 +188,6 @@ export default function TitlePage() {
 	)
 }
 
-function Comments(props: { bookId: string }) {
-	const query = createQuery(() => ({
-		queryKey: ['comments', props.bookId],
-		queryFn: () => getFetcher<IComment[]>(`books/${props.bookId}/comments`),
-	}))
-
-	return (
-		<Switch>
-			<Match when={query.isLoading}>
-				<h1 class='pt-14 text-center text-3xl font-semibold text-teal-600'>
-					Loading..
-				</h1>
-			</Match>
-
-			<Match when={query.isError}>
-				<h1 class='pt-14 text-center text-3xl font-semibold text-red-500'>
-					Something went wrong
-				</h1>
-			</Match>
-
-			<Match when={query.isSuccess}>
-				<ul class='grid grid-cols-2 gap-4'>
-					<For each={query.data!}>
-						{(comment) => (
-							<li class='rounded bg-neutral-700 p-4 text-white'>
-								<div class='flex gap-x-3'>
-									<Switch>
-										<Match when={comment.author.avatar}>
-											<img
-												src={comment.author.avatar}
-												alt='avatar'
-												class='h-9 w-9 rounded-full'
-											/>
-										</Match>
-										<Match when={!comment.author.avatar}>
-											<div class='h-9 w-9 rounded-full bg-gradient-to-br from-orange-600 to-purple-600' />
-										</Match>
-									</Switch>
-
-									<div class='leading-tight'>
-										<div class='font-bold'>
-											{comment.author.username}
-										</div>
-										<div class='text-sm'>
-											{dayjs(comment.createdAt).format(
-												'MMMM DD, YYYY'
-											)}
-										</div>
-									</div>
-								</div>
-								<p class='pt-2'>{comment.text}</p>
-							</li>
-						)}
-					</For>
-				</ul>
-			</Match>
-		</Switch>
-	)
-}
-
 const CreateCommentFormSchema = v.object({
 	text: v.string([v.minLength(10)]),
 })
@@ -279,16 +219,23 @@ function CommentForm(props: { bookId: string }) {
 				class='space-y-4 rounded bg-neutral-700 p-4 text-white'
 			>
 				<div class='flex items-center gap-x-3'>
-					<img
-						src='https://xsgames.co/randomusers/assets/avatars/female/1.jpg'
-						alt='avatar'
-						class='h-9 w-9 rounded-full'
-					/>
+					<Switch>
+						<Match when={persistedStore.currentUser!.avatar}>
+							<img
+								src={persistedStore.currentUser!.avatar}
+								alt='avatar'
+								class='h-9 w-9 rounded-full'
+							/>
+						</Match>
+						<Match when={!persistedStore.currentUser!.avatar}>
+							<div class='h-9 w-9 rounded-full bg-gradient-to-br from-orange-600 to-purple-600' />
+						</Match>
+					</Switch>
 					<div class='leading-tight'>
-						<p class='font-bold'>
+						<p class='font-bold capitalize'>
 							{persistedStore.currentUser?.username}
 						</p>
-						<p class='text-sm'>PlaceHolder Date</p>
+						<p class='text-sm'>{dayjs().format('MMMM DD, YYYY')}</p>
 					</div>
 
 					<button
@@ -314,6 +261,165 @@ function CommentForm(props: { bookId: string }) {
 				</Field>
 			</Form>
 		</Show>
+	)
+}
+
+function Comments(props: { bookId: string }) {
+	const query = createQuery(() => ({
+		queryKey: ['comments', props.bookId],
+		queryFn: () => getFetcher<IComment[]>(`books/${props.bookId}/comments`),
+	}))
+
+	return (
+		<Switch>
+			<Match when={query.isLoading}>
+				<h1 class='pt-14 text-center text-3xl font-semibold text-teal-600'>
+					Loading..
+				</h1>
+			</Match>
+
+			<Match when={query.isError}>
+				<h1 class='pt-14 text-center text-3xl font-semibold text-red-500'>
+					Something went wrong
+				</h1>
+			</Match>
+
+			<Match when={query.isSuccess}>
+				<ul class='grid grid-cols-2 gap-4'>
+					<For each={query.data!}>
+						{(comment) => (
+							<Comment comment={comment} bookId={props.bookId} />
+						)}
+					</For>
+				</ul>
+			</Match>
+		</Switch>
+	)
+}
+
+function Comment(props: { comment: IComment; bookId: string }) {
+	const [editable, setEditable] = createSignal(false)
+
+	const [, { Form, Field }] = createForm<TCreateCommentForm>({
+		validate: valiForm(CreateCommentFormSchema),
+		// eslint-disable-next-line solid/reactivity
+		initialValues: { text: props.comment.text },
+	})
+
+	const queryClient = useQueryClient()
+	function onSuccess() {
+		setEditable(false)
+		queryClient.invalidateQueries({
+			queryKey: ['comments', props.bookId],
+		})
+	}
+	const updateMutation = createMutation(() => ({
+		mutationFn: (body: TCreateCommentForm) =>
+			api.patch(`comments/${props.comment.id}`, { json: body }).text(),
+		onSuccess,
+	}))
+
+	const deleteMutation = createMutation(() => ({
+		mutationFn: () => api.delete(`comments/${props.comment.id}`).text(),
+		onSuccess,
+	}))
+
+	const handleSubmit: SubmitHandler<TCreateCommentForm> = (body) =>
+		updateMutation.mutate(body)
+
+	return (
+		<li class='rounded bg-neutral-700 p-4 text-white'>
+			<div class='flex gap-x-3'>
+				<Switch>
+					<Match when={props.comment.author.avatar}>
+						<img
+							src={props.comment.author.avatar}
+							alt='avatar'
+							class='h-9 w-9 rounded-full'
+						/>
+					</Match>
+					<Match when={!props.comment.author.avatar}>
+						<div class='h-9 w-9 rounded-full bg-gradient-to-br from-orange-600 to-purple-600' />
+					</Match>
+				</Switch>
+
+				<div class='leading-tight'>
+					<div class='font-bold capitalize'>
+						{props.comment.author.username}
+					</div>
+					<div class='text-sm'>
+						{dayjs(props.comment.createdAt).format('MMMM DD, YYYY')}
+					</div>
+				</div>
+
+				<Show
+					when={
+						persistedStore.currentUser?.id ===
+						props.comment.author.id
+					}
+				>
+					<div class='ml-auto flex gap-x-4 self-start'>
+						<button
+							type='button'
+							disabled={
+								updateMutation.isPending ||
+								deleteMutation.isPending
+							}
+							onClick={() => setEditable(!editable())}
+							class='text-sm font-semibold underline'
+						>
+							{editable() ? 'Cancel' : 'Edit'}
+						</button>
+
+						<button
+							type='button'
+							disabled={
+								updateMutation.isPending ||
+								deleteMutation.isPending
+							}
+							onClick={() => deleteMutation.mutate()}
+							class='text-sm font-semibold text-red-600 underline'
+						>
+							Delete
+						</button>
+					</div>
+				</Show>
+			</div>
+			<Switch>
+				<Match when={editable()}>
+					<Form
+						onSubmit={handleSubmit}
+						class='flex flex-col gap-y-2 pt-4'
+					>
+						<Field name='text'>
+							{(field, props) => (
+								<TextArea
+									{...props}
+									disabled={
+										updateMutation.isPending ||
+										deleteMutation.isPending
+									}
+									placeholder='Comment'
+									error={field.error}
+									value={field.value}
+									rows={2}
+									required
+								/>
+							)}
+						</Field>
+						<button
+							type='submit'
+							class='self-end rounded bg-white p-1 px-2 text-sm font-semibold text-black'
+						>
+							Submit
+						</button>
+					</Form>
+				</Match>
+				<Match when={!editable()}>
+					<p class='pt-2'>{props.comment.text}</p>
+				</Match>
+			</Switch>
+		</li>
 	)
 }
 
