@@ -1,10 +1,10 @@
 import { Route, Router as SolidRouter } from '@solidjs/router'
-import FollowsPage from './pages/favorites'
+import RootLayout from './layouts/root'
+import BookmarksPage from './pages/bookmarks'
 import HomePage from './pages/home'
 import MyEntries from './pages/my-entries'
 import SettingsPage from './pages/settings'
 import TitlePage from './pages/title'
-import RootLayout from './shared/layout'
 
 export default function Router() {
 	return (
@@ -13,7 +13,7 @@ export default function Router() {
 				<Route path='' component={HomePage} />
 				<Route path='title/:id' component={TitlePage} />
 				<Route path='my-entries' component={MyEntries} />
-				<Route path='follows' component={FollowsPage} />
+				<Route path='bookmarks' component={BookmarksPage} />
 				<Route path='settings' component={SettingsPage} />
 				<Route path='*' component={NotFound} />
 			</Route>

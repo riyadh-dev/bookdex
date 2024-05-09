@@ -1,22 +1,17 @@
+import { BookCard } from '@/components/book-card'
 import { getFetcher } from '@/config/ky'
 import { IBook } from '@/definitions/interfaces'
-import { persistedStore } from '@/store'
 import { createQuery } from '@tanstack/solid-query'
 import { For, Match, Switch } from 'solid-js'
-import { BookCard } from '../../shared/book-card'
 
-export default function MyEntriesPage() {
+export default function HomePage() {
 	const query = createQuery(() => ({
 		queryKey: ['books'],
-		queryFn: () =>
-			getFetcher<IBook[]>(
-				`books/author/${persistedStore.currentUser?.id}`
-			),
-		enabled: !!persistedStore.currentUser,
+		queryFn: () => getFetcher<IBook[]>('books'),
 	}))
 
 	return (
-		<main>
+		<main class='pt-4'>
 			<Switch>
 				<Match when={query.isPending}>
 					<ul class='grid grid-cols-3 gap-4 px-8'>

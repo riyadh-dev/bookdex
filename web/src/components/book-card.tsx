@@ -15,7 +15,7 @@ export function BookCard(props: { book: IBook }) {
 			<div class='overflow-hidden'>
 				<h2 class='text-lg font-bold'>{props.book.title}</h2>
 				<p class='pb-2'>Author: {props.book.author}</p>
-				<div class='flex items-center gap-x-12 text-base leading-tight'>
+				<div class='flex flex-wrap items-center gap-x-12 text-base leading-tight'>
 					<div class='flex items-end gap-x-2 pb-1'>
 						<AiOutlineStar class='fill-white' />
 						<span>7.8</span>

@@ -27,7 +27,9 @@ dist-ssr
 # cache
 .prettiercache
 .eslintcache
+tsconfig.tsbuildinfo
 
 # go
 tmp
 .env
+

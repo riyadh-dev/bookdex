@@ -1,4 +1,4 @@
-import { Component, Show } from 'solid-js'
+import { Component, Show, createEffect } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { Transition } from 'solid-transition-group'
 
@@ -9,6 +9,13 @@ interface IProps {
 }
 
 export default function Modal(props: IProps) {
+	createEffect(() => {
+		const html = document.querySelector('html')
+		if (html) {
+			props.isOpen ? html.classList.add('overflow-hidden') : html.classList.remove('overflow-hidden')
+		}
+	})
+
 	return (
 		<Portal>
 			<Transition
@@ -22,7 +29,7 @@ export default function Modal(props: IProps) {
 				<Show when={props.isOpen}>
 					<div
 						onClick={() => props.close()}
-						class='fixed inset-0 bg-black/50'
+						class='fixed inset-0 z-20 bg-black/60 backdrop-blur-sm'
 					/>
 				</Show>
 			</Transition>
@@ -35,7 +42,7 @@ export default function Modal(props: IProps) {
 				exitToClass='translate-y-[calc(50vh+50%)]'
 			>
 				<Show when={props.isOpen}>
-					<div class='fixed inset-0 m-auto h-fit max-w-xl'>
+					<div class='fixed inset-0 z-30 m-auto h-fit max-w-xl'>
 						<props.Modal />
 					</div>
 				</Show>

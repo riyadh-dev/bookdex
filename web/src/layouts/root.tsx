@@ -1,12 +1,12 @@
+import Sidebar from '@/components/sidebar'
+import TopBar from '@/components/top-bar'
 import { RouteSectionProps } from '@solidjs/router'
-import Sidebar from './sidebar'
-import TopBar from './top-bar'
 
 export default function RootLayout(props: RouteSectionProps) {
 	return (
-		<div class='flex py-8'>
+		<div class='flex'>
 			<Sidebar />
-			<div class='grow'>
+			<div class='grow pb-8'>
 				<TopBar />
 				{props.children}
 			</div>

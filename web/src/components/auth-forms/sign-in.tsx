@@ -1,6 +1,6 @@
-import { kyBookDex } from '@/config/ky'
+import { api } from '@/config/ky'
 import { ICurrentUser } from '@/definitions/interfaces'
-import { TextInput } from '@/shared/text-input'
+import { TextInput } from '@/components/text-input'
 import { setPersistedStore, setStore } from '@/store'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation } from '@tanstack/solid-query'
@@ -22,7 +22,7 @@ export default function SignInForm() {
 
 	const mutation = createMutation(() => ({
 		mutationFn: (data: TSignIn) =>
-			kyBookDex
+			api
 				.post('auth/sign-in', { json: data, credentials: 'include' })
 				.json<ICurrentUser>(),
 		onSuccess(currentUser) {

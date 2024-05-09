@@ -1,21 +1,39 @@
-import { kyBookDex } from '@/config/ky'
-import { TextInput } from '@/shared/text-input'
+import { TextInput } from '@/components/text-input'
+import { api } from '@/config/ky'
 import { setStore } from '@/store'
-import { createForm, valiForm } from '@modular-forms/solid'
+import { SubmitHandler, createForm, valiForm } from '@modular-forms/solid'
 import { createMutation } from '@tanstack/solid-query'
 import { HTTPError } from 'ky'
 import { createEffect, createSignal } from 'solid-js'
-import { Output, email, minLength, object, string } from 'valibot'
+import * as v from 'valibot'
 
-const SignUpFormSchema = object({
-	username: string([minLength(3)]),
-	email: string([email()]),
-	confirmEmail: string([email()]),
-	password: string([minLength(8)]),
-	confirmPassword: string([minLength(8)]),
-})
+const SignUpFormSchema = v.object(
+	{
+		username: v.string([v.minLength(3)]),
+		email: v.string([v.email()]),
+		confirmEmail: v.string([v.email()]),
+		password: v.string([v.minLength(8)]),
+		confirmPassword: v.string([v.minLength(8)]),
+	},
+	[
+		v.forward(
+			v.custom(
+				(input) => input.password === input.confirmPassword,
+				"Passwords don't match"
+			),
+			['password']
+		),
+		v.forward(
+			v.custom(
+				(input) => input.email === input.confirmEmail,
+				"Emails don't match"
+			),
+			['email']
+		),
+	]
+)
 
-type TSignUpForm = Output<typeof SignUpFormSchema>
+type TSignUpForm = v.Output<typeof SignUpFormSchema>
 type TSignUp = Omit<TSignUpForm, 'confirmPassword' | 'confirmEmail'>
 
 export default function SignUpForm() {
@@ -26,7 +44,7 @@ export default function SignUpForm() {
 	const [isEmailDuplicated, setIsEmailDuplicated] = createSignal(false)
 	const mutation = createMutation(() => ({
 		mutationFn: (data: TSignUp) =>
-			kyBookDex.post('auth/sign-up', { json: data }).json(),
+			api.post('auth/sign-up', { json: data }).json(),
 		onError(error) {
 			if ((error as HTTPError).response.status === 409) {
 				setIsEmailDuplicated(true)
@@ -34,8 +52,12 @@ export default function SignUpForm() {
 		},
 	}))
 
-	const handleSubmit = (data: TSignUp) => {
-		mutation.mutate(data)
+	const handleSubmit: SubmitHandler<TSignUpForm> = ({
+		confirmPassword: _,
+		confirmEmail: __,
+		...body
+	}) => {
+		mutation.mutate(body)
 	}
 
 	createEffect(() => {

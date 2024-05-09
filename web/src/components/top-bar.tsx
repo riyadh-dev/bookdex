@@ -1,5 +1,6 @@
-import { kyBookDex } from '@/config/ky'
-import AddBookForm from '@/shared/add-book'
+import AddBookForm from '@/components/add-book'
+import { api } from '@/config/ky'
+import clickOutside from '@/libs/click-outside'
 import { persistedStore, setStore, store } from '@/store'
 import { A } from '@solidjs/router'
 import { AiOutlineLogin } from 'solid-icons/ai'
@@ -14,7 +15,7 @@ export default function TopBar() {
 	const [loading, setLoading] = createSignal(false)
 	const logout = async () => {
 		setLoading(true)
-		await kyBookDex
+		await api
 			.delete('auth/sign-out', { credentials: 'include' })
 			.finally(() => {
 				setLoading(false)
@@ -23,8 +24,10 @@ export default function TopBar() {
 			})
 	}
 
+	clickOutside //preserve import
+
 	return (
-		<nav class='flex w-full items-start justify-between px-8 pb-4'>
+		<nav class='sticky top-0 z-10 flex w-full items-start justify-between bg-neutral-800 px-8 py-4'>
 			<div class='flex items-center gap-x-4'>
 				<HiOutlineMagnifyingGlass class='text-xl' />
 				<input
@@ -57,7 +60,22 @@ export default function TopBar() {
 							onClick={() => setIsPopoverOpen(true)}
 							class='flex items-center gap-x-3'
 						>
-							<div class='h-8 w-8 rounded-full bg-orange-600' />
+							<Switch>
+								<Match
+									when={persistedStore.currentUser?.avatar}
+								>
+									<img
+										src={persistedStore.currentUser!.avatar}
+										alt='avatar'
+										class='h-9 w-9 rounded-full'
+									/>
+								</Match>
+								<Match
+									when={!persistedStore.currentUser?.avatar}
+								>
+									<div class='h-9 w-9 rounded-full bg-gradient-to-br from-orange-600 to-purple-600' />
+								</Match>
+							</Switch>
 							<h1 class='text-lg font-semibold capitalize'>
 								{
 									//@ts-expect-error - checked on match
@@ -75,7 +93,8 @@ export default function TopBar() {
 						<Show when={isPopoverOpen()}>
 							<div
 								onClick={() => setIsPopoverOpen(false)}
-								class='absolute -right-6 z-10 mt-2 w-max rounded bg-neutral-800 py-4 font-semibold'
+								use:clickOutside={() => setIsPopoverOpen(false)}
+								class='absolute -right-6 top-14 z-10 w-max rounded bg-neutral-800 py-4 font-semibold'
 							>
 								<button
 									onClick={() =>
@@ -86,14 +105,11 @@ export default function TopBar() {
 									Add New Book
 								</button>
 								<A
-									href='my-entries'
-									class='block px-6 py-2 text-left hover:bg-orange-600'
+									href='/settings'
+									class='block w-full px-6 py-2 text-left hover:bg-orange-600'
 								>
-									My Entries
-								</A>
-								<button class='block w-full px-6 py-2 text-left hover:bg-orange-600'>
 									Edit Profile
-								</button>
+								</A>
 								<button
 									onClick={logout}
 									disabled={loading()}
@@ -109,23 +125,3 @@ export default function TopBar() {
 		</nav>
 	)
 }
-
-/*function LoginSection() {
-	return (
-		<nav class='flex h-16 w-full items-start justify-between'>
-			<div class='flex items-center gap-x-4'>
-				<HiOutlineMagnifyingGlass class='text-xl' />
-				<input
-					type='text'
-					class='w-64 bg-transparent outline-none'
-					placeholder='Search book name or author name'
-				/>
-			</div>
-
-			<div class='flex items-center gap-x-4'>
-				<div class='h-10 w-10 rounded-full bg-orange-600' />
-				<span class='font-semibold'>Riyadh Baatchia</span>
-			</div>
-		</nav>
-	);
-}*/

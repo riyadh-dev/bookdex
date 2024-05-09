@@ -10,6 +10,7 @@ type TextInputProps = {
 	value: string | undefined
 	error: string
 	required?: boolean
+	disabled?: boolean
 	// eslint-disable-next-line no-unused-vars
 	ref: (el: HTMLInputElement) => void
 	onInput: JSX.EventHandler<HTMLInputElement, InputEvent>

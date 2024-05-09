@@ -5,6 +5,7 @@ import { ICurrentUser } from './definitions/interfaces'
 interface IStore {
 	authModalOpen: boolean
 	addBookModalOpen: boolean
+	editBookModalOpen: boolean
 	disableAuthActions: boolean
 }
 
@@ -15,6 +16,7 @@ interface IPersistedStore {
 const [store, setStore] = createStore<IStore>({
 	authModalOpen: false,
 	addBookModalOpen: false,
+	editBookModalOpen: false,
 	disableAuthActions: false,
 })
 
