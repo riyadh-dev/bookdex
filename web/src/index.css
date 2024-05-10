@@ -2,8 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+	font-family: Poppins, sans-serif;
+}
+
 @media (max-width: 768px) {
 	html {
 		font-size: 14px;
 	}
+}
+
+@font-face {
+	font-family: 'Poppins';
+	font-weight: 400;
+	src:
+		url('/fonts/poppins-regular.woff2') format(woff2),
+		url('/fonts/poppins-regular.woff') format(woff);
+}
+
+@font-face {
+	font-family: 'Poppins';
+	font-weight: 500;
+	src:
+		url('/fonts/poppins-medium.woff2') format(woff2),
+		url('/fonts/poppins-medium.woff') format(woff);
+}
+
+@font-face {
+	font-family: 'Poppins';
+	font-weight: 600;
+	src:
+		url('/fonts/poppins-semibold.woff2') format(woff2),
+		url('/fonts/poppins-regular.woff') format(woff);
 }
