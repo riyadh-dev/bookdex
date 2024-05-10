@@ -23,11 +23,55 @@ func newBooks(db *mongo.Database, customErrors *config.CustomErrors) *Books {
 }
 
 func (b *Books) GetAll(query string) (*[]models.Book, error) {
-	titleFilter := bson.M{"title": bson.M{"$regex": query, "$options": "i"}}
-	authorFilter := bson.M{"author": bson.M{"$regex": query, "$options": "i"}}
-	filter := bson.M{"$or": []bson.M{titleFilter, authorFilter}}
-	cursor, err := b.dbColl.Find(context.Background(), filter)
+	/*titleFilter := bson.M{"title": bson.M{"$regex": query, "$options": "i"}}
+	authorFilter := bson.M{"author": bson.M{"$regex": query, "$options": "i"}}*/
+
+	//TODO abstract filters
+	lookupRatings := bson.M{
+		"from":         "ratings",
+		"localField":   "_id",
+		"foreignField": "bookId",
+		"as":           "ratings",
+	}
+	lookupComments := bson.M{
+		"from":         "comments",
+		"localField":   "_id",
+		"foreignField": "bookId",
+		"as":           "comments",
+	}
+	addFields := bson.M{
+		"ratingCount":  bson.M{"$size": "$ratings"},
+		"commentCount": bson.M{"$size": "$comments"},
+	}
+	project := bson.M{
+		"_id":           1,
+		"title":         1,
+		"author":        1,
+		"cover":         1,
+		"synopsis":      1,
+		"submitterId":   1,
+		"bookmarkerIds": 1,
+		"commentCount":  1,
+		"avgRating": bson.M{
+			"$cond": bson.M{
+				"if":   bson.M{"$eq": bson.A{"$ratingCount", 0}},
+				"then": 0,
+				"else": bson.M{"$avg": "$ratings.value"},
+			},
+		},
+	}
+	pipeline := mongo.Pipeline{
+		bson.D{{Key: "$lookup", Value: lookupRatings}},
+		bson.D{{Key: "$lookup", Value: lookupComments}},
+		bson.D{{Key: "$addFields", Value: addFields}},
+		bson.D{{Key: "$project", Value: project}},
+	}
+
+	cursor, err := b.dbColl.Aggregate(context.Background(), pipeline)
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, b.customErrors.ErrNotFound
+		}
 		return nil, err
 	}
 
@@ -46,14 +90,59 @@ func (b *Books) GetAllBookmarked(userId string) (*[]models.Book, error) {
 		return nil, b.customErrors.ErrInvalidId
 	}
 
-	books := make([]models.Book, 0)
-	cursor, err := b.dbColl.Find(context.Background(), bson.M{
+	filter := bson.M{
 		"bookmarkerIds": bson.M{"$in": []primitive.ObjectID{userObjId}},
-	})
+	}
+	lookupRatings := bson.M{
+		"from":         "ratings",
+		"localField":   "_id",
+		"foreignField": "bookId",
+		"as":           "ratings",
+	}
+	lookupComments := bson.M{
+		"from":         "comments",
+		"localField":   "_id",
+		"foreignField": "bookId",
+		"as":           "comments",
+	}
+	addFields := bson.M{
+		"ratingCount":  bson.M{"$size": "$ratings"},
+		"commentCount": bson.M{"$size": "$comments"},
+	}
+	project := bson.M{
+		"_id":           1,
+		"title":         1,
+		"author":        1,
+		"cover":         1,
+		"synopsis":      1,
+		"submitterId":   1,
+		"bookmarkerIds": 1,
+		"commentCount":  1,
+		"avgRating": bson.M{
+			"$cond": bson.M{
+				"if":   bson.M{"$eq": bson.A{"$ratingCount", 0}},
+				"then": 0,
+				"else": bson.M{"$avg": "$ratings.value"},
+			},
+		},
+	}
+	pipeline := mongo.Pipeline{
+		bson.D{{Key: "$match", Value: filter}},
+		bson.D{{Key: "$lookup", Value: lookupRatings}},
+		bson.D{{Key: "$lookup", Value: lookupComments}},
+		bson.D{{Key: "$addFields", Value: addFields}},
+		bson.D{{Key: "$project", Value: project}},
+	}
+
+	cursor, err := b.dbColl.Aggregate(context.Background(), pipeline)
 	if err != nil {
+		if err.Error() == "mongo: no documents in result" {
+			return nil, b.customErrors.ErrNotFound
+		}
 		return nil, err
 	}
 
+	books := make([]models.Book, 0)
 	err = cursor.All(context.Background(), &books)
 	if err != nil {
 		return nil, err
@@ -62,35 +151,122 @@ func (b *Books) GetAllBookmarked(userId string) (*[]models.Book, error) {
 	return &books, nil
 }
 
-func (b *Books) GetById(id string) (*models.Book, error) {
-	objectId, err := primitive.ObjectIDFromHex(id)
+func (b *Books) GetById(bookId string) (*models.Book, error) {
+	objBookId, err := primitive.ObjectIDFromHex(bookId)
 	if err != nil {
 		return nil, b.customErrors.ErrInvalidId
 	}
 
-	var book = new(models.Book)
-	err = b.dbColl.FindOne(context.Background(), bson.M{"_id": objectId}).
-		Decode(book)
+	filter := bson.M{"_id": objBookId}
+	lookupRatings := bson.M{
+		"from":         "ratings",
+		"localField":   "_id",
+		"foreignField": "bookId",
+		"as":           "ratings",
+	}
+	lookupComments := bson.M{
+		"from":         "comments",
+		"localField":   "_id",
+		"foreignField": "bookId",
+		"as":           "comments",
+	}
+	addFields := bson.M{
+		"ratingCount":  bson.M{"$size": "$ratings"},
+		"commentCount": bson.M{"$size": "$comments"},
+	}
+	project := bson.M{
+		"_id":           1,
+		"title":         1,
+		"author":        1,
+		"cover":         1,
+		"synopsis":      1,
+		"submitterId":   1,
+		"bookmarkerIds": 1,
+		"commentCount":  1,
+		"avgRating": bson.M{
+			"$cond": bson.M{
+				"if":   bson.M{"$eq": bson.A{"$ratingCount", 0}},
+				"then": 0,
+				"else": bson.M{"$avg": "$ratings.value"},
+			},
+		},
+	}
+	pipeline := mongo.Pipeline{
+		bson.D{{Key: "$match", Value: filter}},
+		bson.D{{Key: "$lookup", Value: lookupRatings}},
+		bson.D{{Key: "$lookup", Value: lookupComments}},
+		bson.D{{Key: "$addFields", Value: addFields}},
+		bson.D{{Key: "$project", Value: project}},
+	}
+
+	cursor, err := b.dbColl.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, b.customErrors.ErrNotFound
 		}
 		return nil, err
 	}
+
+	books := make([]models.Book, 0)
+	err = cursor.All(context.Background(), &books)
+	if err != nil {
+		return nil, err
+	}
+
+	book := &books[0]
 
 	return book, nil
 }
 
-func (b *Books) GetBySubmitterId(id string) (*[]models.Book, error) {
-	objectId, err := primitive.ObjectIDFromHex(id)
+func (b *Books) GetBySubmitterId(submitterId string) (*[]models.Book, error) {
+	objSubmitterId, err := primitive.ObjectIDFromHex(submitterId)
 	if err != nil {
 		return nil, b.customErrors.ErrInvalidId
 	}
 
-	books := make([]models.Book, 0)
-	cursor, err := b.dbColl.Find(context.Background(), bson.M{
-		"submitterId": objectId,
-	})
+	filter := bson.M{"submitterId": objSubmitterId}
+	lookupRatings := bson.M{
+		"from":         "ratings",
+		"localField":   "_id",
+		"foreignField": "bookId",
+		"as":           "ratings",
+	}
+	lookupComments := bson.M{
+		"from":         "comments",
+		"localField":   "_id",
+		"foreignField": "bookId",
+		"as":           "comments",
+	}
+	addFields := bson.M{
+		"ratingCount":  bson.M{"$size": "$ratings"},
+		"commentCount": bson.M{"$size": "$comments"},
+	}
+	project := bson.M{
+		"_id":           1,
+		"title":         1,
+		"author":        1,
+		"cover":         1,
+		"synopsis":      1,
+		"submitterId":   1,
+		"bookmarkerIds": 1,
+		"commentCount":  1,
+		"avgRating": bson.M{
+			"$cond": bson.M{
+				"if":   bson.M{"$eq": bson.A{"$ratingCount", 0}},
+				"then": 0,
+				"else": bson.M{"$avg": "$ratings.value"},
+			},
+		},
+	}
+	pipeline := mongo.Pipeline{
+		bson.D{{Key: "$match", Value: filter}},
+		bson.D{{Key: "$lookup", Value: lookupRatings}},
+		bson.D{{Key: "$lookup", Value: lookupComments}},
+		bson.D{{Key: "$addFields", Value: addFields}},
+		bson.D{{Key: "$project", Value: project}},
+	}
+
+	cursor, err := b.dbColl.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
 			return nil, b.customErrors.ErrNotFound
@@ -98,6 +274,7 @@ func (b *Books) GetBySubmitterId(id string) (*[]models.Book, error) {
 		return nil, err
 	}
 
+	books := make([]models.Book, 0)
 	err = cursor.All(context.Background(), &books)
 	if err != nil {
 		return nil, err

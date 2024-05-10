@@ -5,14 +5,15 @@ import (
 )
 
 type Book struct {
-	ID       primitive.ObjectID `bson:"_id" json:"id"`
-	Title    string             `           json:"title"`
-	Author   string             `           json:"author"`
-	Cover    string             `           json:"cover"`
-	Synopsis string             `           json:"synopsis"`
-
-	SubmitterID   primitive.ObjectID   `json:"submitterId"   bson:"submitterId"`
-	BookmarkerIDs []primitive.ObjectID `json:"bookmarkerIds" bson:"bookmarkerIds"`
+	ID            primitive.ObjectID   `bson:"_id"           json:"id"`
+	Title         string               `                     json:"title"`
+	Author        string               `                     json:"author"`
+	Cover         string               `                     json:"cover"`
+	Synopsis      string               `                     json:"synopsis"`
+	SubmitterID   primitive.ObjectID   `bson:"submitterId"   json:"submitterId"`
+	BookmarkerIDs []primitive.ObjectID `bson:"bookmarkerIds" json:"bookmarkerIds,omitempty"`
+	CommentCount  int                  `bson:"commentCount"  json:"commentCount,omitempty"`
+	AvgRating     float64              `bson:"avgRating"     json:"avgRating,omitempty"`
 }
 
 type InsertBookReqInput struct {
