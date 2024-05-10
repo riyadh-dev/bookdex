@@ -16,15 +16,15 @@ export function BookCard(props: { book: IBook }) {
 				<h2 class='text-lg font-bold'>{props.book.title}</h2>
 				<p class='pb-2'>Author: {props.book.author}</p>
 				<div class='flex flex-wrap items-center gap-x-12 text-base leading-tight'>
-					<div class='flex items-end gap-x-2 pb-1'>
+					<div class='flex items-center gap-x-2 pb-1'>
 						<AiOutlineStar class='fill-white' />
 						<span>{props.book.avgRating ?? '-'}</span>
 					</div>
-					<div class='flex items-end gap-x-2'>
+					<div class='flex items-center gap-x-2'>
 						<FiBookmark />
 						<span>{props.book.bookmarkerIds?.length ?? 0}</span>
 					</div>
-					<div class='flex items-end gap-x-2'>
+					<div class='flex items-center gap-x-2'>
 						<BiRegularComment class='fill-white' />
 						<span>{props.book.commentCount ?? 0}</span>
 					</div>

@@ -15,8 +15,9 @@ import {
 import clsx from 'clsx'
 import dayjs from 'dayjs'
 import { AiOutlineStar } from 'solid-icons/ai'
+import { BiRegularComment } from 'solid-icons/bi'
 import { FaRegularBookmark } from 'solid-icons/fa'
-import { FiEdit2, FiShoppingCart } from 'solid-icons/fi'
+import { FiBookmark, FiEdit2, FiShoppingCart } from 'solid-icons/fi'
 import { ImSpinner8 } from 'solid-icons/im'
 import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
@@ -81,23 +82,28 @@ export default function TitlePage() {
 			<Match when={bookQuery.isSuccess}>
 				<main class='relative'>
 					<img
-						src={bookQuery.data?.cover}
+						src={bookQuery.data!.cover}
 						alt='cover'
 						class='absolute -z-10 h-80 w-full rounded object-cover opacity-50 blur'
 					/>
 					<div class='flex gap-x-6 px-12 pt-24'>
-						<img
-							src={bookQuery.data?.cover}
-							alt='cover'
-							class='w-48 rounded'
-						/>
+						<div>
+							<img
+								src={bookQuery.data!.cover}
+								alt='cover'
+								class='w-48 rounded'
+							/>
+							<p class='invisible pt-4 text-lg' aria-hidden>
+								hidden
+							</p>
+						</div>
 						<div class='flex flex-col'>
 							<h1 class='text-6xl font-bold'>
-								{bookQuery.data?.title}
+								{bookQuery.data!.title}
 							</h1>
 
 							<h2 class='pt-32 text-lg'>
-								{bookQuery.data?.author}
+								{bookQuery.data!.author}
 							</h2>
 
 							<div class='mt-auto flex gap-x-2 font-semibold'>
@@ -169,10 +175,32 @@ export default function TitlePage() {
 									Buy
 								</button>
 							</div>
+
+							<div class='flex flex-wrap items-center gap-x-4 pt-4 text-center text-lg'>
+								<div class='flex items-center gap-x-1 text-orange-600'>
+									<AiOutlineStar class='fill-orange-600' />
+									<span>
+										{bookQuery.data!.avgRating ?? '-'}
+									</span>
+								</div>
+								<div class='flex items-center gap-x-1'>
+									<FiBookmark />
+									<span>
+										{bookQuery.data!.bookmarkerIds
+											?.length ?? 0}
+									</span>
+								</div>
+								<div class='flex items-center gap-x-1'>
+									<BiRegularComment />
+									<span>
+										{bookQuery.data!.commentCount ?? 0}
+									</span>
+								</div>
+							</div>
 						</div>
 					</div>
 
-					<p class='px-8 pt-6 text-lg'>{bookQuery.data?.synopsis}</p>
+					<p class='px-8 pt-4 text-lg'>{bookQuery.data!.synopsis}</p>
 
 					<div class='p-8'>
 						<div class='w-full border-t border-neutral-600' />
