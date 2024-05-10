@@ -18,15 +18,15 @@ export function BookCard(props: { book: IBook }) {
 				<div class='flex flex-wrap items-center gap-x-12 text-base leading-tight'>
 					<div class='flex items-end gap-x-2 pb-1'>
 						<AiOutlineStar class='fill-white' />
-						<span>7.8</span>
+						<span>{props.book.avgRating ?? '-'}</span>
 					</div>
 					<div class='flex items-end gap-x-2'>
 						<FiBookmark />
-						<span>500</span>
+						<span>{props.book.bookmarkerIds?.length ?? 0}</span>
 					</div>
 					<div class='flex items-end gap-x-2'>
 						<BiRegularComment class='fill-white' />
-						<span>21</span>
+						<span>{props.book.commentCount ?? 0}</span>
 					</div>
 				</div>
 

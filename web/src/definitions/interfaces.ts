@@ -6,11 +6,9 @@ export interface IBook {
 	synopsis: string
 
 	submitterId: string
-	bookmarkerIds: string[]
-	ratings?: {
-		raterId: string
-		value: number
-	}[]
+	bookmarkerIds?: string[]
+	avgRating?: number
+	commentCount?: number
 }
 
 export interface ICurrentUser {

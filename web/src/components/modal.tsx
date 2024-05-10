@@ -12,7 +12,9 @@ export default function Modal(props: IProps) {
 	createEffect(() => {
 		const html = document.querySelector('html')
 		if (html) {
-			props.isOpen ? html.classList.add('overflow-hidden') : html.classList.remove('overflow-hidden')
+			props.isOpen
+				? html.classList.add('overflow-hidden')
+				: html.classList.remove('overflow-hidden')
 		}
 	})
 
