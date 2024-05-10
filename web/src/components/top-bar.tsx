@@ -33,7 +33,7 @@ export default function TopBar() {
 				<input
 					type='text'
 					class='w-64 bg-transparent outline-none'
-					placeholder='Search book name or author name'
+					placeholder='by book name or author name'
 				/>
 			</div>
 
