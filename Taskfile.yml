@@ -50,3 +50,9 @@ tasks:
     dir: api
     cmds:
       - golines . -w -m 80
+
+  seed:db:
+    desc: "seed the database"
+    dir: api/scripts
+    cmds:
+      - go run seed.go
