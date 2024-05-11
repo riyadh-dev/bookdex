@@ -19,6 +19,23 @@ func newUsers(db *mongo.Database, customErrors *config.CustomErrors) *Users {
 	return &Users{dbColl: db.Collection("users"), customErrors: customErrors}
 }
 
+func (u *Users) GetAllMocked() (*[]models.User, error) {
+	cursor, err := u.dbColl.Find(
+		context.Background(),
+		bson.M{"is_mocked": true},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	users := new([]models.User)
+	if err = cursor.All(context.Background(), users); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func (u *Users) Create(input *models.InsertUserInput) (string, error) {
 	result, err := u.dbColl.InsertOne(context.Background(), *input)
 	if err != nil {

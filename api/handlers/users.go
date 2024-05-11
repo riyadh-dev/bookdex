@@ -24,6 +24,15 @@ func newUsers(
 	}
 }
 
+func (u *Users) GetAllMocked(ctx *fiber.Ctx) error {
+	users, err := u.usersStorage.GetAllMocked()
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(users)
+}
+
 func (u *Users) Update(ctx *fiber.Ctx) error {
 	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
 	userId := claims["id"].(string)

@@ -59,6 +59,7 @@ func newFiberApp(
 	authRouter.Delete("/sign-out", authHandlers.SignOut)
 
 	usersRouter := api.Group("/users")
+	usersRouter.Get("/mocked", usersHandlers.GetAllMocked)
 	usersRouter.Patch("/:id", authMiddleware.IsAuth(), usersHandlers.Update)
 
 	booksRouter := api.Group("/books")
