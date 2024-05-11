@@ -154,10 +154,11 @@ func seedComments(
 				panic("invalid user id")
 			}
 
+			faker := faker.New()
 			comment := models.InsertCommentStorageInput{
 				BookID:   bookId,
 				AuthorID: userId,
-				Text:     "This is a good book!",
+				Text:     faker.Lorem().Sentence(24),
 			}
 
 			comments[i*commentsPerBook+j] = comment
@@ -216,7 +217,7 @@ type InsertSeedUserInput struct {
 	Password string `bson:"password"`
 	Username string `bson:"username"`
 	Avatar   string `bson:"avatar"`
-	IsSeeded bool   `bson:"is_seeded"`
+	IsSeeded bool   `bson:"isSeeded"`
 }
 
 type InsertSeedBookInput struct {

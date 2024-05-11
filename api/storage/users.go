@@ -22,7 +22,7 @@ func newUsers(db *mongo.Database, customErrors *config.CustomErrors) *Users {
 func (u *Users) GetAllMocked() (*[]models.User, error) {
 	cursor, err := u.dbColl.Find(
 		context.Background(),
-		bson.M{"is_mocked": true},
+		bson.M{"isSeeded": true},
 	)
 	if err != nil {
 		return nil, err
