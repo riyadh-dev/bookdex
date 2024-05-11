@@ -1,6 +1,7 @@
 import { setStore, store } from '@/store'
 import { FaSolidXmark } from 'solid-icons/fa'
 import { Match, Show, Switch, createSignal } from 'solid-js'
+import MockIn from './mock-in'
 import SignInForm from './sign-in'
 import SignUpForm from './sign-up'
 
@@ -26,7 +27,7 @@ export default function AuthForms() {
 
 			<div class='border-t' />
 
-			<div class='space-y-5 p-6'>
+			<div class='space-y-4 p-6'>
 				<h1 class='text-2xl font-bold'>Welcome to BookDex</h1>
 				<Switch>
 					<Match when={formType() === 'sign-up'}>
@@ -36,7 +37,7 @@ export default function AuthForms() {
 						<SignInForm />
 					</Match>
 					<Match when={formType() === 'mock-list'}>
-						<h1>Not Implemented Yet</h1>
+						<MockIn />
 					</Match>
 				</Switch>
 
@@ -76,7 +77,7 @@ export default function AuthForms() {
 						<button
 							disabled={store.disableAuthActions}
 							onClick={() => setFormType('sign-in')}
-							class='relative h-12 w-full rounded border border-black dark:border-white'
+							class='relative h-12 w-full rounded border'
 						>
 							<i class='ri-mail-line absolute bottom-1/2 left-6 translate-y-1/2 text-2xl' />
 							<span class='font-bold'>

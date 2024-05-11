@@ -1,6 +1,6 @@
+import { TextInput } from '@/components/text-input'
 import { api } from '@/config/ky'
 import { ICurrentUser } from '@/definitions/interfaces'
-import { TextInput } from '@/components/text-input'
 import { setPersistedStore, setStore } from '@/store'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation } from '@tanstack/solid-query'
