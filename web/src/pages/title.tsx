@@ -4,7 +4,7 @@ import { TextArea } from '@/components/text-area'
 import { api, getFetcher } from '@/config/ky'
 import { IBook, IComment, IRating } from '@/definitions/interfaces'
 import clickOutside from '@/libs/click-outside'
-import { persistedStore } from '@/store'
+import { persistedStore, setStore } from '@/store'
 import { SubmitHandler, createForm, valiForm } from '@modular-forms/solid'
 import { useParams } from '@solidjs/router'
 import {
@@ -109,9 +109,11 @@ export default function TitlePage() {
 							<div class='mt-auto flex gap-x-2 font-semibold'>
 								<button
 									onClick={() =>
-										isBookmarked()
-											? unbookmarkMutation.mutate()
-											: bookmarkMutation.mutate()
+										!persistedStore.currentUser
+											? setStore('authModalOpen', true)
+											: isBookmarked()
+												? unbookmarkMutation.mutate()
+												: bookmarkMutation.mutate()
 									}
 									disabled={
 										bookmarkMutation.isPending ||
@@ -126,30 +128,32 @@ export default function TitlePage() {
 									{isBookmarked() ? 'Unbookmark' : 'Bookmark'}
 								</button>
 
-								<Switch>
-									<Match
-										when={
-											ratingQuery.isPending ||
-											ratingQuery.isRefetching
-										}
-									>
-										<button
-											disabled
-											class='flex items-center gap-x-2 rounded bg-neutral-500 px-3 py-3'
+								<Show when={persistedStore.currentUser}>
+									<Switch>
+										<Match
+											when={
+												ratingQuery.isPending ||
+												ratingQuery.isRefetching
+											}
 										>
-											<ImSpinner8
-												size={24}
-												class='animate-spin'
+											<button
+												disabled
+												class='flex items-center gap-x-2 rounded bg-neutral-500 px-3 py-3'
+											>
+												<ImSpinner8
+													size={24}
+													class='animate-spin'
+												/>
+											</button>
+										</Match>
+										<Match when={ratingQuery.isSuccess}>
+											<RatingButton
+												bookId={params.id}
+												rating={ratingQuery.data?.value}
 											/>
-										</button>
-									</Match>
-									<Match when={ratingQuery.isSuccess}>
-										<RatingButton
-											bookId={params.id}
-											rating={ratingQuery.data?.value}
-										/>
-									</Match>
-								</Switch>
+										</Match>
+									</Switch>
+								</Show>
 
 								<Show
 									when={
@@ -168,7 +172,10 @@ export default function TitlePage() {
 									</button>
 								</Show>
 
-								<button class='flex items-center gap-x-2 rounded bg-orange-600 px-6 py-3'>
+								<button
+									disabled
+									class='flex items-center gap-x-2 rounded bg-orange-600 px-6 py-3 disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale'
+								>
 									<span>
 										<FiShoppingCart />
 									</span>

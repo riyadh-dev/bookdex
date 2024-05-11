@@ -31,8 +31,9 @@ export default function TopBar() {
 			<div class='flex items-center gap-x-4'>
 				<HiOutlineMagnifyingGlass class='text-xl' />
 				<input
+					disabled
 					type='text'
-					class='w-64 bg-transparent outline-none'
+					class='w-64 bg-transparent outline-none disabled:cursor-not-allowed'
 					placeholder='by book name or author name'
 				/>
 			</div>

@@ -33,5 +33,13 @@
 	font-weight: 600;
 	src:
 		url('/fonts/poppins-semibold.woff2') format(woff2),
-		url('/fonts/poppins-regular.woff') format(woff);
+		url('/fonts/poppins-semibold.woff') format(woff);
+}
+
+@font-face {
+	font-family: 'Poppins';
+	font-weight: 700;
+	src:
+		url('/fonts/poppins-bold.woff2') format(woff2),
+		url('/fonts/poppins-bold.woff') format(woff);
 }

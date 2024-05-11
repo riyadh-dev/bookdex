@@ -11,7 +11,12 @@ export function BookCard(props: { book: IBook }) {
 			aria-label={`Book ${props.book.title}`}
 			class='flex h-60 gap-x-4 rounded bg-neutral-700 p-4 text-white'
 		>
-			<img src={props.book.cover} alt='cover' class='h-full rounded' />
+			<img
+				src={props.book.cover}
+				alt='cover'
+				class='h-full rounded'
+				crossOrigin='anonymous'
+			/>
 			<div class='overflow-hidden'>
 				<h2 class='text-lg font-bold'>{props.book.title}</h2>
 				<p class='pb-2'>Author: {props.book.author}</p>
