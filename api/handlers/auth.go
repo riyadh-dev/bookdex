@@ -114,7 +114,7 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 		Name:     "JWT",
 		Value:    tokenString,
 		HTTPOnly: true,
-		SameSite: "Strict",
+		SameSite: "None",
 		Expires:  expirationTime,
 		Secure:   a.env.IS_PROD,
 	})
