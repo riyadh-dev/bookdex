@@ -20,7 +20,7 @@ export default function InfiniteBookList(props: IProps) {
 	return (
 		<Switch>
 			<Match when={props.infiniteQuery.isPending}>
-				<ul class='grid grid-cols-3 gap-4 px-8'>
+				<ul class='grid grid-cols-1 gap-4 px-4 md:grid-cols-2 md:px-8 lg:grid-cols-3'>
 					<For each={Array.from({ length: 9 })}>
 						{() => <BookCardSkeleton />}
 					</For>
@@ -34,7 +34,7 @@ export default function InfiniteBookList(props: IProps) {
 			</Match>
 
 			<Match when={props.infiniteQuery.isSuccess}>
-				<ul class='grid grid-cols-3 gap-4 px-8'>
+				<ul class='grid grid-cols-1 gap-4 px-4 md:grid-cols-2 md:px-8 lg:grid-cols-3'>
 					<For each={props.infiniteQuery.data?.pages}>
 						{(pages) => (
 							<For each={pages.data}>
@@ -50,7 +50,7 @@ export default function InfiniteBookList(props: IProps) {
 
 				<Switch>
 					<Match when={props.infiniteQuery.isFetchingNextPage}>
-						<ul class='grid grid-cols-3 gap-4 px-8 pt-4'>
+						<ul class='grid grid-cols-1 gap-4 px-4 pt-4 md:grid-cols-2 md:px-8 lg:grid-cols-3'>
 							<For each={Array.from({ length: 3 })}>
 								{() => <BookCardSkeleton />}
 							</For>

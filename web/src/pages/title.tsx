@@ -86,27 +86,30 @@ export default function TitlePage() {
 						alt='cover'
 						class='absolute -z-10 h-80 w-full rounded object-cover opacity-50 blur'
 					/>
-					<div class='flex gap-x-6 px-12 pt-24'>
+					<div class='flex gap-6 px-12 pt-24 max-md:flex-wrap'>
 						<div>
 							<img
 								src={bookQuery.data!.cover}
 								alt='cover'
 								class='w-48 rounded'
 							/>
-							<p class='invisible pt-4 text-lg' aria-hidden>
+							<p
+								class='pt-4 text-lg max-md:hidden md:invisible'
+								aria-hidden
+							>
 								hidden
 							</p>
 						</div>
-						<div class='flex flex-col'>
+						<div class='flex flex-col max-md:gap-y-4'>
 							<h1 class='text-6xl font-bold'>
 								{bookQuery.data!.title}
 							</h1>
 
-							<h2 class='pt-32 text-lg'>
+							<h2 class='text-lg md:pt-32'>
 								{bookQuery.data!.author}
 							</h2>
 
-							<div class='mt-auto flex gap-x-2 font-semibold'>
+							<div class='mt-auto flex gap-x-2 font-semibold max-md:pt-4'>
 								<button
 									onClick={() =>
 										!persistedStore.currentUser
@@ -441,7 +444,7 @@ function Comments(props: { bookId: string }) {
 			</Match>
 
 			<Match when={query.isSuccess}>
-				<ul class='grid grid-cols-2 gap-4'>
+				<ul class='grid grid-cols-1 gap-4 md:grid-cols-2'>
 					<For each={query.data!}>
 						{(comment) => (
 							<Comment comment={comment} bookId={props.bookId} />

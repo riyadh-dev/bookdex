@@ -7,6 +7,7 @@ interface IStore {
 	addBookModalOpen: boolean
 	editBookModalOpen: boolean
 	disableAuthActions: boolean
+	sideBarOpen: boolean
 }
 
 interface IPersistedStore {
@@ -18,6 +19,7 @@ const [store, setStore] = createStore<IStore>({
 	addBookModalOpen: false,
 	editBookModalOpen: false,
 	disableAuthActions: false,
+	sideBarOpen: false,
 })
 
 const [persistedStore, setPersistedStore] = makePersisted(

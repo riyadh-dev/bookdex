@@ -1,10 +1,12 @@
 import { Route, Router as SolidRouter } from '@solidjs/router'
-import RootLayout from './layouts/root'
-import BookmarksPage from './pages/bookmarks'
-import HomePage from './pages/home'
-import MyEntries from './pages/my-entries'
-import SettingsPage from './pages/settings'
-import TitlePage from './pages/title'
+import { lazy } from 'solid-js'
+
+const RootLayout = lazy(() => import('./layouts/root'))
+const BookmarksPage = lazy(() => import('./pages/bookmarks'))
+const HomePage = lazy(() => import('./pages/home'))
+const MyEntries = lazy(() => import('./pages/my-entries'))
+const SettingsPage = lazy(() => import('./pages/settings'))
+const TitlePage = lazy(() => import('./pages/title'))
 
 export default function Router() {
 	return (

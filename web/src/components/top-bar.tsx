@@ -4,6 +4,7 @@ import clickOutside from '@/libs/click-outside'
 import { persistedStore, setStore, store } from '@/store'
 import { A } from '@solidjs/router'
 import { AiOutlineLogin } from 'solid-icons/ai'
+import { CgMenuLeft } from 'solid-icons/cg'
 import { HiOutlineMagnifyingGlass } from 'solid-icons/hi'
 import { Match, Show, Switch, createSignal } from 'solid-js'
 import AuthForms from './auth-forms'
@@ -28,7 +29,7 @@ export default function TopBar() {
 
 	return (
 		<nav class='sticky top-0 z-10 flex w-full items-start justify-between bg-neutral-800 px-8 py-4'>
-			<div class='flex items-center gap-x-4'>
+			<div class='flex items-center gap-x-4 max-md:hidden'>
 				<HiOutlineMagnifyingGlass class='text-xl' />
 				<input
 					disabled
@@ -37,6 +38,14 @@ export default function TopBar() {
 					placeholder='by book name or author name'
 				/>
 			</div>
+
+			<button
+				aria-label='open side bar'
+				onClick={() => setStore('sideBarOpen', true)}
+				class='md:hidden'
+			>
+				<CgMenuLeft class='text-3xl' />
+			</button>
 
 			<Switch>
 				<Match when={!persistedStore.currentUser}>
