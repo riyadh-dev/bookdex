@@ -30,7 +30,8 @@ func (b *Books) GetAll( /*query string,*/
 	authorFilter := bson.M{"author": bson.M{"$regex": query, "$options": "i"}}*/
 
 	var pipeline mongo.Pipeline
-	addPipelineStages(&pipeline, limit, offset)
+	addBasePipelineStages(&pipeline)
+	addPaginationPipelineStages(&pipeline, limit, offset)
 	cursor, err := b.dbColl.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
@@ -64,7 +65,8 @@ func (b *Books) GetAllBookmarked(
 	pipeline := mongo.Pipeline{
 		bson.D{{Key: "$match", Value: filter}},
 	}
-	addPipelineStages(&pipeline, limit, offset)
+	addBasePipelineStages(&pipeline)
+	addPaginationPipelineStages(&pipeline, limit, offset)
 	cursor, err := b.dbColl.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
@@ -92,7 +94,7 @@ func (b *Books) GetById(bookId string) (*models.Book, error) {
 	pipeline := mongo.Pipeline{
 		bson.D{{Key: "$match", Value: filter}},
 	}
-	addPipelineStages(&pipeline, 1, 0)
+	addBasePipelineStages(&pipeline)
 	cursor, err := b.dbColl.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
@@ -126,7 +128,8 @@ func (b *Books) GetAllBySubmitterId(
 	pipeline := mongo.Pipeline{
 		bson.D{{Key: "$match", Value: filter}},
 	}
-	addPipelineStages(&pipeline, limit, offset)
+	addBasePipelineStages(&pipeline)
+	addPaginationPipelineStages(&pipeline, limit, offset)
 	cursor, err := b.dbColl.Aggregate(context.Background(), pipeline)
 	if err != nil {
 		if err.Error() == "mongo: no documents in result" {
@@ -250,7 +253,7 @@ func (b *Books) Unbookmark(bookId string, userId string) error {
 	return nil
 }
 
-func addPipelineStages(pipe *mongo.Pipeline, limit int, offset int) {
+func addBasePipelineStages(pipe *mongo.Pipeline) {
 	ratingsLookup := bson.M{
 		"from":         "ratings",
 		"localField":   "_id",
@@ -288,6 +291,16 @@ func addPipelineStages(pipe *mongo.Pipeline, limit int, offset int) {
 		},
 	}
 
+	*pipe = append(
+		*pipe,
+		bson.D{{Key: "$lookup", Value: ratingsLookup}},
+		bson.D{{Key: "$lookup", Value: commentsLookup}},
+		bson.D{{Key: "$addFields", Value: addFields}},
+		bson.D{{Key: "$project", Value: project}},
+	)
+}
+
+func addPaginationPipelineStages(pipe *mongo.Pipeline, limit int, offset int) {
 	facet := bson.M{
 		"metadata": bson.A{
 			bson.M{"$count": "total"},
@@ -297,17 +310,16 @@ func addPipelineStages(pipe *mongo.Pipeline, limit int, offset int) {
 		"data": bson.A{bson.M{"$skip": offset}, bson.M{"$limit": limit}},
 	}
 
-	secondProject := bson.M{
+	project := bson.M{
 		"data":   1,
 		"total":  bson.M{"$arrayElemAt": bson.A{"$metadata.total", 0}},
 		"offset": bson.M{"$arrayElemAt": bson.A{"$metadata.offset", 0}},
 		"limit":  bson.M{"$arrayElemAt": bson.A{"$metadata.limit", 0}},
 	}
 
-	*pipe = append(*pipe, bson.D{{Key: "$lookup", Value: ratingsLookup}},
-		bson.D{{Key: "$lookup", Value: commentsLookup}},
-		bson.D{{Key: "$addFields", Value: addFields}},
-		bson.D{{Key: "$project", Value: project}},
+	*pipe = append(
+		*pipe,
 		bson.D{{Key: "$facet", Value: facet}},
-		bson.D{{Key: "$project", Value: secondProject}})
+		bson.D{{Key: "$project", Value: project}},
+	)
 }
