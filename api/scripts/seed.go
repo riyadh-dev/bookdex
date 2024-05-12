@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/jaswdr/faker"
+	"github.com/joho/godotenv"
 	"github.com/riyadh-dev/bookdex/api/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -13,8 +15,12 @@ import (
 )
 
 func main() {
-	MONGODB_URI := "mongodb://localhost:27017"
-	DB_NAME := "bookdex"
+	if err := godotenv.Load("../.env"); err != nil {
+		panic(err)
+	}
+
+	MONGODB_URI := os.Getenv("MONGODB_URI")
+	DB_NAME := os.Getenv("DB_NAME")
 
 	client, err := mongo.Connect(
 		context.Background(),
@@ -39,6 +45,8 @@ func main() {
 	seedComments(db.Collection("comments"), 6, userIds, booksIds)
 	seedRatings(db.Collection("ratings"), userIds, booksIds)
 	fmt.Println("🌱 Seeding Done!")
+
+	client.Disconnect(context.Background())
 }
 
 func seedUsers(coll *mongo.Collection, usersNumber int) []interface{} {
