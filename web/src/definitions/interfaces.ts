@@ -35,3 +35,12 @@ export interface IRating {
 	raterId: string
 	value: number
 }
+
+export interface Paginated<TDataItem> {
+	data: TDataItem[]
+	total: number
+	offset: number
+	limit: number
+}
+
+export type TPaginatedBooks = Paginated<IBook>
