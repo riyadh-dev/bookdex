@@ -27,7 +27,10 @@ func newBooks(
 }
 
 func (b *Books) GetAll(ctx *fiber.Ctx) error {
-	books, err := b.booksStorage.GetAll(ctx.Query("q"))
+	limit := ctx.QueryInt("limit", 9)
+	offset := ctx.QueryInt("offset", 0)
+
+	books, err := b.booksStorage.GetAll(limit, offset)
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}
@@ -39,7 +42,10 @@ func (b *Books) GetAllBookmarked(ctx *fiber.Ctx) error {
 	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
 	userId := claims["id"].(string)
 
-	books, err := b.booksStorage.GetAllBookmarked(userId)
+	limit := ctx.QueryInt("limit", 9)
+	offset := ctx.QueryInt("offset", 0)
+
+	books, err := b.booksStorage.GetAllBookmarked(userId, limit, offset)
 	if err != nil {
 		return fiber.ErrInternalServerError
 	}
@@ -63,8 +69,13 @@ func (b *Books) GetById(ctx *fiber.Ctx) error {
 	return ctx.JSON(book)
 }
 
-func (b *Books) GetBySubmitterId(ctx *fiber.Ctx) error {
-	book, err := b.booksStorage.GetBySubmitterId(ctx.Params("id"))
+func (b *Books) GetAllBySubmitterId(ctx *fiber.Ctx) error {
+	submitterId := ctx.Params("id")
+
+	limit := ctx.QueryInt("limit", 9)
+	offset := ctx.QueryInt("offset", 0)
+
+	book, err := b.booksStorage.GetAllBySubmitterId(submitterId, limit, offset)
 	if err != nil {
 		switch err {
 		case b.customErrors.ErrNotFound:

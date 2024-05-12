@@ -38,3 +38,10 @@ type UpdateBookInput struct {
 	Cover    string `bson:"cover,omitempty"    validate:"url_encoded"`
 	Synopsis string `bson:"synopsis,omitempty" validate:"required,max=60"`
 }
+
+type PaginatedBooks struct {
+	Data   []Book `json:"data"`
+	Total  int    `json:"total"`
+	Offset int    `json:"offset"`
+	Limit  int    `json:"limit"`
+}

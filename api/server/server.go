@@ -70,7 +70,7 @@ func newFiberApp(
 		authMiddleware.IsAuth(),
 		booksHandlers.GetAllBookmarked,
 	)
-	booksRouter.Get("/author/:id", booksHandlers.GetBySubmitterId)
+	booksRouter.Get("/submitter/:id", booksHandlers.GetAllBySubmitterId)
 	booksRouter.Get("/:id", booksHandlers.GetById)
 	booksRouter.Patch(
 		"/:id",
