@@ -1,3 +1,15 @@
+export interface ICurrentUser {
+	id: string
+	email: string
+	username: string
+	avatar?: string
+	exp: number
+}
+
+export interface ILoginRes extends ICurrentUser {
+	token: string
+}
+
 export interface IBook {
 	id: string
 	title: string
@@ -9,14 +21,6 @@ export interface IBook {
 	bookmarkerIds?: string[]
 	avgRating?: number
 	commentCount?: number
-}
-
-export interface ICurrentUser {
-	id: string
-	email: string
-	username: string
-	avatar?: string
-	exp: number
 }
 
 export interface IComment {

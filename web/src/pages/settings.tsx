@@ -1,19 +1,24 @@
 import { TextInput } from '@/components/text-input'
-import { api } from '@/config/ky'
+import { apiWithAuth } from '@/config/ky'
 import { persistedStore, setPersistedStore, setStore } from '@/store'
 import { SubmitHandler, createForm, valiForm } from '@modular-forms/solid'
+import { useNavigate } from '@solidjs/router'
 import { createMutation } from '@tanstack/solid-query'
 import { HTTPError } from 'ky'
 import { createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
 export default function SettingsPage() {
+	const navigate = useNavigate()
+	if (!persistedStore.token) {
+		navigate('/', { replace: true })
+	}
+
 	return (
 		<main class='px-8 pt-4'>
 			<h1 class='pb-4 text-2xl font-semibold'>Settings</h1>
 			<div class='flex flex-wrap justify-center gap-8'>
 				<EditCurrentUserForm />
-
 				<ChangePasswordForm />
 			</div>
 		</main>
@@ -74,7 +79,7 @@ function EditCurrentUserForm() {
 	const [isEmailDuplicated, setIsEmailDuplicated] = createSignal(false)
 	const mutation = createMutation(() => ({
 		mutationFn: (body: TEditCurrentUserBody) =>
-			api.patch(`users/${currentUser.id}`, { json: body }).text(),
+			apiWithAuth.patch(`users/${currentUser.id}`, { json: body }).text(),
 		onError(error) {
 			if ((error as HTTPError).response.status === 409) {
 				setIsEmailDuplicated(true)
@@ -173,7 +178,7 @@ function ChangePasswordForm() {
 
 	const mutation = createMutation(() => ({
 		mutationFn: (body: TChangePasswordBody) =>
-			api.patch(`users/${currentUser.id}`, { json: body }).text(),
+			apiWithAuth.patch(`users/${currentUser.id}`, { json: body }).text(),
 	}))
 
 	const handleSubmit: SubmitHandler<TChangePasswordForm> = ({ password }) => {

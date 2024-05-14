@@ -1,5 +1,5 @@
-import { api, getFetcher } from '@/config/ky'
-import { ICurrentUser } from '@/definitions/interfaces'
+import { api } from '@/config/ky'
+import { ICurrentUser, ILoginRes } from '@/definitions'
 import { setPersistedStore, setStore } from '@/store'
 import { createMutation, createQuery } from '@tanstack/solid-query'
 import { For, Match, Show, Switch } from 'solid-js'
@@ -12,16 +12,17 @@ interface TSignIn {
 export default function MockIn() {
 	const query = createQuery(() => ({
 		queryKey: ['mockedUsers'],
-		queryFn: () => getFetcher<ICurrentUser[]>('users/mocked'),
+		queryFn: () => api.get('users/mocked').json<ICurrentUser[]>(),
 	}))
 
 	const mutation = createMutation(() => ({
 		mutationFn: (data: TSignIn) =>
 			api
 				.post('auth/sign-in', { json: data, credentials: 'include' })
-				.json<ICurrentUser>(),
-		onSuccess(currentUser) {
+				.json<ILoginRes>(),
+		onSuccess({ token, ...currentUser }) {
 			setPersistedStore('currentUser', currentUser)
+			setPersistedStore('token', token)
 			setStore('authModalOpen', false)
 		},
 	}))

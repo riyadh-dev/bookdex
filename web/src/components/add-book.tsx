@@ -1,6 +1,6 @@
-import { api } from '@/config/ky'
 import { TextArea } from '@/components/text-area'
 import { TextInput } from '@/components/text-input'
+import { apiWithAuth } from '@/config/ky'
 import { setStore } from '@/store'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation } from '@tanstack/solid-query'
@@ -23,7 +23,7 @@ export default function AddBookForm() {
 
 	const mutation = createMutation(() => ({
 		mutationFn: (data: TCreateBook) =>
-			api.post('books', { json: data }).json(),
+			apiWithAuth.post('books', { json: data }).json(),
 		onSuccess: () => setStore('addBookModalOpen', false),
 	}))
 

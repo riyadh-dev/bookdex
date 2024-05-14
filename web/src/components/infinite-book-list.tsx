@@ -1,4 +1,4 @@
-import { TPaginatedBooks } from '@/definitions/interfaces'
+import { TPaginatedBooks } from '@/definitions'
 import { createIntersectionObserver } from '@solid-primitives/intersection-observer'
 import { CreateInfiniteQueryResult, InfiniteData } from '@tanstack/solid-query'
 import { For, Match, Switch, createSignal } from 'solid-js'

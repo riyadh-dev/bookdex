@@ -1,6 +1,6 @@
 import { makePersisted } from '@solid-primitives/storage'
 import { createStore } from 'solid-js/store'
-import { ICurrentUser } from './definitions/interfaces'
+import { ICurrentUser } from './definitions'
 
 interface IStore {
 	authModalOpen: boolean
@@ -12,6 +12,7 @@ interface IStore {
 
 interface IPersistedStore {
 	currentUser?: ICurrentUser
+	token?: string
 }
 
 const [store, setStore] = createStore<IStore>({
@@ -25,7 +26,7 @@ const [store, setStore] = createStore<IStore>({
 const [persistedStore, setPersistedStore] = makePersisted(
 	// eslint-disable-next-line solid/reactivity
 	createStore<IPersistedStore>({}),
-	{ name: 'persist-store' }
+	{ name: 'store' }
 )
 
 export { persistedStore, setPersistedStore, setStore, store }

@@ -1,8 +1,7 @@
 import AddBookForm from '@/components/add-book'
-import { api } from '@/config/ky'
 import clickOutside from '@/libs/click-outside'
-import { persistedStore, setStore, store } from '@/store'
-import { A } from '@solidjs/router'
+import { persistedStore, setPersistedStore, setStore, store } from '@/store'
+import { A, useNavigate } from '@solidjs/router'
 import { AiOutlineLogin } from 'solid-icons/ai'
 import { CgMenuLeft } from 'solid-icons/cg'
 import { HiOutlineMagnifyingGlass } from 'solid-icons/hi'
@@ -13,16 +12,11 @@ import Modal from './modal'
 export default function TopBar() {
 	const [isPopoverOpen, setIsPopoverOpen] = createSignal(false)
 
-	const [loading, setLoading] = createSignal(false)
-	const logout = async () => {
-		setLoading(true)
-		await api
-			.delete('auth/sign-out', { credentials: 'include' })
-			.finally(() => {
-				setLoading(false)
-				localStorage.clear()
-				window.location.href = '/'
-			})
+	const navigate = useNavigate()
+	function handleLogout() {
+		setPersistedStore('token', undefined)
+		setPersistedStore('currentUser', undefined)
+		navigate('/')
 	}
 
 	clickOutside //preserve import
@@ -35,7 +29,7 @@ export default function TopBar() {
 					disabled
 					type='text'
 					class='w-64 bg-transparent outline-none disabled:cursor-not-allowed'
-					placeholder='by book name or author name'
+					placeholder='Search title or author'
 				/>
 			</div>
 
@@ -121,11 +115,10 @@ export default function TopBar() {
 									Edit Profile
 								</A>
 								<button
-									onClick={logout}
-									disabled={loading()}
+									onClick={handleLogout}
 									class='block w-full px-6 py-2 text-left hover:bg-orange-600'
 								>
-									{loading() ? 'Logging out...' : 'Logout'}
+									Logout
 								</button>
 							</div>
 						</Show>

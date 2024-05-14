@@ -1,4 +1,4 @@
-import { IBook } from '@/definitions/interfaces'
+import { IBook } from '@/definitions'
 import { A } from '@solidjs/router'
 import { AiOutlineStar } from 'solid-icons/ai'
 import { BiRegularComment } from 'solid-icons/bi'

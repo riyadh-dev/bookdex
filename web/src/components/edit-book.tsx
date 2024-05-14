@@ -1,7 +1,7 @@
-import { api } from '@/config/ky'
-import { IBook } from '@/definitions/interfaces'
 import { TextArea } from '@/components/text-area'
 import { TextInput } from '@/components/text-input'
+import { apiWithAuth } from '@/config/ky'
+import { IBook } from '@/definitions'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation, useQueryClient } from '@tanstack/solid-query'
 import { FaSolidXmark } from 'solid-icons/fa'
@@ -36,7 +36,7 @@ export default function EditBookForm(props: {
 
 	const mutation = createMutation(() => ({
 		mutationFn: (data: TCreateBook) =>
-			api.patch(`books/${props.book.id}`, { json: data }).text(),
+			apiWithAuth.patch(`books/${props.book.id}`, { json: data }).text(),
 		onSuccess() {
 			props.close()
 			queryClient.invalidateQueries({ queryKey: ['book', props.book.id] })

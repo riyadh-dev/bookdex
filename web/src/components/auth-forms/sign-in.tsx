@@ -1,6 +1,6 @@
 import { TextInput } from '@/components/text-input'
 import { api } from '@/config/ky'
-import { ICurrentUser } from '@/definitions/interfaces'
+import { ILoginRes } from '@/definitions'
 import { setPersistedStore, setStore } from '@/store'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation } from '@tanstack/solid-query'
@@ -24,9 +24,10 @@ export default function SignInForm() {
 		mutationFn: (data: TSignIn) =>
 			api
 				.post('auth/sign-in', { json: data, credentials: 'include' })
-				.json<ICurrentUser>(),
-		onSuccess(currentUser) {
+				.json<ILoginRes>(),
+		onSuccess({ token, ...currentUser }) {
 			setPersistedStore('currentUser', currentUser)
+			setPersistedStore('token', token)
 			setStore('authModalOpen', false)
 		},
 	}))

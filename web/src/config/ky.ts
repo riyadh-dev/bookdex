@@ -1,8 +1,19 @@
+import { persistedStore } from '@/store'
 import ky from 'ky'
 
 export const api = ky.create({
 	prefixUrl: import.meta.env.VITE_APP_BOOKDEX_API_URL,
-	credentials: 'include',
 })
 
-export const getFetcher = <TReturn>(url: string) => api.get(url).json<TReturn>()
+export const apiWithAuth = api.extend({
+	hooks: {
+		beforeRequest: [
+			(request) => {
+				request.headers.set(
+					'Authorization',
+					`Bearer ${persistedStore.token}`
+				)
+			},
+		],
+	},
+})

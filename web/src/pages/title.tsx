@@ -1,8 +1,8 @@
 import EditBookForm from '@/components/edit-book'
 import Modal from '@/components/modal'
 import { TextArea } from '@/components/text-area'
-import { api, getFetcher } from '@/config/ky'
-import { IBook, IComment, IRating } from '@/definitions/interfaces'
+import { api, apiWithAuth } from '@/config/ky'
+import { IBook, IComment, IRating } from '@/definitions'
 import clickOutside from '@/libs/click-outside'
 import { persistedStore, setStore } from '@/store'
 import { SubmitHandler, createForm, valiForm } from '@modular-forms/solid'
@@ -27,7 +27,7 @@ export default function TitlePage() {
 
 	const bookQuery = createQuery(() => ({
 		queryKey: ['book', params.id],
-		queryFn: () => getFetcher<IBook>(`books/${params.id}`),
+		queryFn: () => api.get(`books/${params.id}`).json<IBook>(),
 	}))
 
 	const queryClient = useQueryClient()
@@ -38,12 +38,12 @@ export default function TitlePage() {
 	}
 
 	const bookmarkMutation = createMutation(() => ({
-		mutationFn: () => api.patch(`books/${params.id}/bookmark`),
+		mutationFn: () => apiWithAuth.patch(`books/${params.id}/bookmark`),
 		onSuccess,
 	}))
 
 	const unbookmarkMutation = createMutation(() => ({
-		mutationFn: () => api.patch(`books/${params.id}/unbookmark`),
+		mutationFn: () => apiWithAuth.patch(`books/${params.id}/unbookmark`),
 		onSuccess,
 	}))
 
@@ -61,7 +61,8 @@ export default function TitlePage() {
 
 	const ratingQuery = createQuery(() => ({
 		queryKey: ['ratings', params.id],
-		queryFn: () => getFetcher<IRating>(`books/${params.id}/ratings`),
+		queryFn: () =>
+			apiWithAuth.get(`books/${params.id}/ratings`).json<IRating>(),
 		enabled: !!persistedStore.currentUser,
 	}))
 
@@ -263,7 +264,7 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 
 	const postMutation = createMutation(() => ({
 		mutationFn: (rating: number) =>
-			api
+			apiWithAuth
 				.post(`books/${props.bookId}/ratings`, {
 					json: { value: rating },
 				})
@@ -273,7 +274,7 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 
 	const patchMutation = createMutation(() => ({
 		mutationFn: (rating: number) =>
-			api
+			apiWithAuth
 				.patch(`books/${props.bookId}/ratings`, {
 					json: { value: rating },
 				})
@@ -282,7 +283,8 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 	}))
 
 	const deleteMutation = createMutation(() => ({
-		mutationFn: () => api.delete(`books/${props.bookId}/ratings`).text(),
+		mutationFn: () =>
+			apiWithAuth.delete(`books/${props.bookId}/ratings`).text(),
 		onSuccess,
 	}))
 
@@ -361,7 +363,9 @@ function CommentForm(props: { bookId: string }) {
 	const queryClient = useQueryClient()
 	const mutation = createMutation(() => ({
 		mutationFn: (body: TCreateCommentForm) =>
-			api.post(`books/${props.bookId}/comments`, { json: body }).json(),
+			apiWithAuth
+				.post(`books/${props.bookId}/comments`, { json: body })
+				.json(),
 		onSuccess: () =>
 			queryClient.invalidateQueries({
 				queryKey: ['comments', props.bookId],
@@ -426,7 +430,8 @@ function CommentForm(props: { bookId: string }) {
 function Comments(props: { bookId: string }) {
 	const query = createQuery(() => ({
 		queryKey: ['comments', props.bookId],
-		queryFn: () => getFetcher<IComment[]>(`books/${props.bookId}/comments`),
+		queryFn: () =>
+			api.get(`books/${props.bookId}/comments`).json<IComment[]>(),
 	}))
 
 	return (
@@ -474,12 +479,15 @@ function Comment(props: { comment: IComment; bookId: string }) {
 	}
 	const updateMutation = createMutation(() => ({
 		mutationFn: (body: TCreateCommentForm) =>
-			api.patch(`comments/${props.comment.id}`, { json: body }).text(),
+			apiWithAuth
+				.patch(`comments/${props.comment.id}`, { json: body })
+				.text(),
 		onSuccess,
 	}))
 
 	const deleteMutation = createMutation(() => ({
-		mutationFn: () => api.delete(`comments/${props.comment.id}`).text(),
+		mutationFn: () =>
+			apiWithAuth.delete(`comments/${props.comment.id}`).text(),
 		onSuccess,
 	}))
 
