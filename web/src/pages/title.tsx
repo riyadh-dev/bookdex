@@ -6,7 +6,7 @@ import { IBook, IComment, IRating } from '@/definitions'
 import clickOutside from '@/libs/click-outside'
 import { persistedStore, setStore } from '@/store'
 import { SubmitHandler, createForm, valiForm } from '@modular-forms/solid'
-import { useParams } from '@solidjs/router'
+import { useNavigate, useParams } from '@solidjs/router'
 import {
 	createMutation,
 	createQuery,
@@ -19,6 +19,7 @@ import { BiRegularComment } from 'solid-icons/bi'
 import { FaRegularBookmark } from 'solid-icons/fa'
 import { FiBookmark, FiEdit2, FiShoppingCart } from 'solid-icons/fi'
 import { ImSpinner8 } from 'solid-icons/im'
+import { RiSystemDeleteBin2Line } from 'solid-icons/ri'
 import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
@@ -66,6 +67,15 @@ export default function TitlePage() {
 		enabled: !!persistedStore.currentUser,
 	}))
 
+	const navigate = useNavigate()
+	const deleteMutation = createMutation(() => ({
+		mutationFn: () => apiWithAuth.delete(`books/${params.id}`).text(),
+		onSuccess() {
+			queryClient.invalidateQueries({ queryKey: ['books'] })
+			navigate('/', { replace: true })
+		},
+	}))
+
 	return (
 		<Switch
 			fallback={
@@ -101,7 +111,7 @@ export default function TitlePage() {
 								hidden
 							</p>
 						</div>
-						<div class='flex flex-col max-md:gap-y-4'>
+						<div class='flex grow flex-col max-md:gap-y-4'>
 							<h1 class='text-6xl font-bold'>
 								{bookQuery.data!.title}
 							</h1>
@@ -110,7 +120,7 @@ export default function TitlePage() {
 								{bookQuery.data!.author}
 							</h2>
 
-							<div class='mt-auto flex gap-x-2 font-semibold max-md:pt-4'>
+							<div class='mt-auto flex flex-wrap gap-2 font-semibold max-md:pt-4'>
 								<button
 									onClick={() =>
 										!persistedStore.currentUser
@@ -178,13 +188,32 @@ export default function TitlePage() {
 
 								<button
 									disabled
-									class='flex items-center gap-x-2 rounded bg-orange-600 px-6 py-3 disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale'
+									class='flex items-center gap-x-2 rounded bg-orange-600 px-6 py-3 disabled:cursor-not-allowed disabled:opacity-75 disabled:grayscale'
 								>
 									<span>
 										<FiShoppingCart />
 									</span>
 									Buy
 								</button>
+
+								<Show
+									when={
+										bookQuery.data?.submitterId ===
+										persistedStore.currentUser?.id
+									}
+								>
+									<button
+										type='button'
+										disabled={deleteMutation.isPending}
+										onClick={() => deleteMutation.mutate()}
+										class='flex items-center gap-x-2 rounded bg-red-600 px-6 py-3 disabled:cursor-not-allowed disabled:opacity-75 disabled:grayscale md:ml-auto'
+									>
+										<span>
+											<RiSystemDeleteBin2Line />
+										</span>
+										Delete
+									</button>
+								</Show>
 							</div>
 
 							<div class='flex flex-wrap items-center gap-x-4 pt-4 text-center text-lg'>
@@ -302,7 +331,7 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 				onClick={() => setIsPopoverOpen(true)}
 				class={clsx(
 					props.rating ? 'bg-orange-600' : 'bg-neutral-600',
-					'flex items-center gap-x-2 rounded px-3 py-3 disabled:opacity-50 disabled:grayscale'
+					'flex items-center gap-x-2 rounded px-3 py-3 disabled:opacity-75 disabled:grayscale'
 				)}
 			>
 				<AiOutlineStar size={24} />
@@ -404,7 +433,7 @@ function CommentForm(props: { bookId: string }) {
 					<button
 						type='submit'
 						disabled={mutation.isPending}
-						class='ml-auto rounded bg-white px-4 py-2 font-semibold text-black disabled:cursor-not-allowed disabled:opacity-50'
+						class='ml-auto rounded bg-white px-4 py-2 font-semibold text-black disabled:cursor-not-allowed disabled:opacity-75'
 					>
 						Submit
 					</button>
