@@ -39,7 +39,7 @@ func newFiberApp(
 
 	app.Use(logger.New())
 	app.Use(limiter.New(limiter.Config{
-		Max:        20,
+		Max:        50,
 		Expiration: 30 * time.Second,
 		LimitReached: func(ctx *fiber.Ctx) error {
 			return ctx.SendString("Too many requests, please wait a minute")

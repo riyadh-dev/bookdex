@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jaswdr/faker"
 	"github.com/joho/godotenv"
@@ -32,6 +33,8 @@ func main() {
 
 	db := client.Database(DB_NAME)
 
+	fake := faker.New()
+
 	fmt.Println("❌ Dropping Collections...")
 	db.Collection("users").Drop(context.Background())
 	db.Collection("books").Drop(context.Background())
@@ -40,19 +43,21 @@ func main() {
 	fmt.Println("❌ Collections Dropped!")
 
 	fmt.Println("🌱 Seeding...")
-	userIds := seedUsers(db.Collection("users"), 10)
-	booksIds := seedBooks(db.Collection("books"), 6, userIds)
-	seedComments(db.Collection("comments"), 6, userIds, booksIds)
+	userIds := seedUsers(db.Collection("users"), &fake, 10)
+	booksIds := seedBooks(db.Collection("books"), userIds, 6)
+	seedComments(db.Collection("comments"), &fake, userIds, booksIds, 6)
 	seedRatings(db.Collection("ratings"), userIds, booksIds)
 	fmt.Println("🌱 Seeding Done!")
 
 	client.Disconnect(context.Background())
 }
 
-func seedUsers(coll *mongo.Collection, usersNumber int) []interface{} {
+func seedUsers(
+	coll *mongo.Collection,
+	fake *faker.Faker,
+	usersNumber int,
+) []interface{} {
 	fmt.Println("\t🧔 Seeding Users...")
-
-	fake := faker.New()
 
 	hashedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte("password"),
@@ -95,8 +100,8 @@ func seedUsers(coll *mongo.Collection, usersNumber int) []interface{} {
 
 func seedBooks(
 	coll *mongo.Collection,
-	booksPerUser int,
 	usersIds []interface{},
+	booksPerUser int,
 ) []interface{} {
 	fmt.Println("\t📚 Seeding Books...")
 
@@ -123,6 +128,9 @@ func seedBooks(
 				Synopsis:      MOCK_BOOKS_DATA[circularSeedBookIdx].Synopsis,
 				SubmitterID:   submitterId,
 				BookmarkerIDs: []primitive.ObjectID{bookmarkerId},
+				CreatedAt: time.Now().
+					AddDate(0, 0, -(1 + i*booksPerUser + j)).
+					UTC(),
 			}
 
 			books[i*booksPerUser+j] = book
@@ -141,9 +149,10 @@ func seedBooks(
 
 func seedComments(
 	coll *mongo.Collection,
-	commentsPerBook int,
+	fake *faker.Faker,
 	usersIds []interface{},
 	booksIds []interface{},
+	commentsPerBook int,
 ) {
 	fmt.Println("\t📃 Seeding Comments...")
 
@@ -162,11 +171,14 @@ func seedComments(
 				panic("invalid user id")
 			}
 
-			faker := faker.New()
 			comment := models.InsertCommentStorageInput{
 				BookID:   bookId,
 				AuthorID: userId,
-				Text:     faker.Lorem().Sentence(24),
+				Text:     fake.Lorem().Sentence(24),
+				CreatedAt: fake.Time().TimeBetween(
+					time.Now().AddDate(-5, 0, 0),
+					time.Now().AddDate(0, 0, 1),
+				).UTC(),
 			}
 
 			comments[i*commentsPerBook+j] = comment
@@ -235,6 +247,7 @@ type InsertSeedBookInput struct {
 	Synopsis      string               `bson:"synopsis"`
 	SubmitterID   primitive.ObjectID   `bson:"submitterId"`
 	BookmarkerIDs []primitive.ObjectID `bson:"bookmarkerIds"`
+	CreatedAt     time.Time            `bson:"createdAt"`
 }
 
 var MOCK_BOOKS_DATA = []models.InsertBookStorageInput{

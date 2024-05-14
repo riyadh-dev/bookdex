@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"time"
 
 	"github.com/riyadh-dev/bookdex/api/config"
 	"github.com/riyadh-dev/bookdex/api/models"
@@ -163,6 +164,7 @@ func (b *Books) Create(
 		Synopsis: input.Synopsis,
 
 		SubmitterID: submitterObjId,
+		CreatedAt:   time.Now().UTC(),
 	}
 
 	result, err := b.dbColl.InsertOne(context.Background(), storageInput)
@@ -254,6 +256,8 @@ func (b *Books) Unbookmark(bookId string, userId string) error {
 }
 
 func addBasePipelineStages(pipe *mongo.Pipeline) {
+	sort := bson.M{"createdAt": -1}
+
 	ratingsLookup := bson.M{
 		"from":         "ratings",
 		"localField":   "_id",
@@ -293,6 +297,7 @@ func addBasePipelineStages(pipe *mongo.Pipeline) {
 
 	*pipe = append(
 		*pipe,
+		bson.D{{Key: "$sort", Value: sort}},
 		bson.D{{Key: "$lookup", Value: ratingsLookup}},
 		bson.D{{Key: "$lookup", Value: commentsLookup}},
 		bson.D{{Key: "$addFields", Value: addFields}},

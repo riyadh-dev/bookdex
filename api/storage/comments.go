@@ -55,6 +55,7 @@ func (r *Comments) GetAllByBookId(
 	}
 
 	filter := bson.M{"bookId": objectId}
+	sort := bson.M{"createdAt": -1}
 	lookup := bson.M{
 		"from":         "users",
 		"localField":   "authorId",
@@ -70,6 +71,7 @@ func (r *Comments) GetAllByBookId(
 
 	pipeline := mongo.Pipeline{
 		bson.D{{Key: "$match", Value: filter}},
+		bson.D{{Key: "$sort", Value: sort}},
 		bson.D{{Key: "$lookup", Value: lookup}},
 		bson.D{{Key: "$project", Value: project}},
 		bson.D{{Key: "$unwind", Value: "$author"}},
