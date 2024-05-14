@@ -2,11 +2,13 @@ package server
 
 import (
 	"context"
+	"time"
 
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/riyadh-dev/bookdex/api/config"
@@ -36,7 +38,13 @@ func newFiberApp(
 	})
 
 	app.Use(logger.New())
-	//app.Use(limiter.New())
+	app.Use(limiter.New(limiter.Config{
+		Max:        20,
+		Expiration: 30 * time.Second,
+		LimitReached: func(ctx *fiber.Ctx) error {
+			return ctx.SendString("Too many requests, please wait a minute")
+		},
+	}))
 	app.Use(recover.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     env.CLIENT_URL,
@@ -56,48 +64,47 @@ func newFiberApp(
 	authRouter := api.Group("/auth")
 	authRouter.Post("/sign-up", authHandlers.SignUp)
 	authRouter.Post("/sign-in", authHandlers.SignIn)
-	authRouter.Delete("/sign-out", authHandlers.SignOut)
 
 	usersRouter := api.Group("/users")
 	usersRouter.Get("/mocked", usersHandlers.GetAllMocked)
-	usersRouter.Patch("/:id", authMiddleware.IsAuth(), usersHandlers.Update)
+	usersRouter.Patch("/:id", authMiddleware.Protected(), usersHandlers.Update)
 
 	booksRouter := api.Group("/books")
-	booksRouter.Post("/", authMiddleware.IsAuth(), booksHandlers.Create)
+	booksRouter.Post("/", authMiddleware.Protected(), booksHandlers.Create)
 	booksRouter.Get("/", booksHandlers.GetAll)
 	booksRouter.Get(
 		"/bookmarked",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		booksHandlers.GetAllBookmarked,
 	)
 	booksRouter.Get("/submitter/:id", booksHandlers.GetAllBySubmitterId)
 	booksRouter.Get("/:id", booksHandlers.GetById)
 	booksRouter.Patch(
 		"/:id",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		authMiddleware.IsBookOwner(),
 		booksHandlers.Update,
 	)
-	booksRouter.Delete("/:id", authMiddleware.IsAuth(), booksHandlers.Delete)
+	booksRouter.Delete("/:id", authMiddleware.Protected(), booksHandlers.Delete)
 
 	booksRouter.Patch(
 		"/:id/bookmark",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		booksHandlers.Bookmark,
 	)
 	booksRouter.Patch(
 		"/:id/unbookmark",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		booksHandlers.Unbookmark,
 	)
 	booksRouter.Post(
 		"/:id/comments",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		commentsHandlers.Create,
 	)
 	booksRouter.Patch(
 		"/:id/comments",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		commentsHandlers.Update,
 	)
 	booksRouter.Get(
@@ -106,34 +113,34 @@ func newFiberApp(
 	)
 	booksRouter.Post(
 		"/:id/ratings",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		ratingsHandlers.Create,
 	)
 	booksRouter.Patch(
 		"/:id/ratings",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		ratingsHandlers.Update,
 	)
 	booksRouter.Get(
 		"/:id/ratings",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		ratingsHandlers.GetByBookIdAndRaterId,
 	)
 	booksRouter.Delete(
 		"/:id/ratings",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		ratingsHandlers.Delete,
 	)
 
 	commentsRouter := api.Group("/comments")
 	commentsRouter.Patch(
 		"/:id",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		commentsHandlers.Update,
 	)
 	commentsRouter.Delete(
 		"/:id",
-		authMiddleware.IsAuth(),
+		authMiddleware.Protected(),
 		commentsHandlers.Delete,
 	)
 

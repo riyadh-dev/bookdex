@@ -95,47 +95,25 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 		return fiber.ErrUnauthorized
 	}
 
-	expirationTime := time.Now().
-		Add(time.Hour * time.Duration(a.env.AUTH_EXP_HOUR))
-
 	token := jwt.New(jwt.SigningMethodHS256)
+
+	exp := time.Now().Add(time.Hour * 72).Unix()
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = user.ID.Hex()
-	claims["exp"] = expirationTime.Unix()
+	claims["exp"] = exp
 
-	// Generate encoded token and send it as response.
-	tokenString, err := token.SignedString([]byte(a.env.JWT_SECRET))
+	t, err := token.SignedString([]byte(a.env.JWT_SECRET))
 	if err != nil {
 		return ctx.SendStatus(fiber.StatusInternalServerError)
 	}
-
-	ctx.Cookie(&fiber.Cookie{
-		Name:     "JWT",
-		Value:    tokenString,
-		HTTPOnly: true,
-		SameSite: "None",
-		Expires:  expirationTime,
-		Secure:   a.env.IS_PROD,
-	})
 
 	return ctx.JSON(fiber.Map{
 		"id":       user.ID.Hex(),
 		"username": user.Username,
 		"email":    user.Email,
 		"avatar":   user.Avatar,
-		"exp":      expirationTime.Unix(),
+		"exp":      exp,
+		"token":    t,
 	})
-}
-
-func (a *Auth) SignOut(ctx *fiber.Ctx) error {
-	ctx.Cookie(&fiber.Cookie{
-		Name:     "JWT",
-		Value:    "deleted",
-		HTTPOnly: true,
-		SameSite: "Lax",
-		Expires:  time.Now().Add(-time.Hour),
-		Secure:   a.env.IS_PROD,
-	})
-	return ctx.SendStatus(fiber.StatusOK)
 }
