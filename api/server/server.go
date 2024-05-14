@@ -48,7 +48,7 @@ func newFiberApp(
 	app.Use(recover.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     env.CLIENT_URL,
-		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
 	}))
 	app.Use(encryptcookie.New(encryptcookie.Config{
