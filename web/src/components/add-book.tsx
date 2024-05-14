@@ -3,7 +3,7 @@ import { TextInput } from '@/components/text-input'
 import { apiWithAuth } from '@/config/ky'
 import { setStore } from '@/store'
 import { createForm, valiForm } from '@modular-forms/solid'
-import { createMutation } from '@tanstack/solid-query'
+import { createMutation, useQueryClient } from '@tanstack/solid-query'
 import { FaSolidXmark } from 'solid-icons/fa'
 import { Output, maxLength, minLength, object, string, url } from 'valibot'
 
@@ -21,10 +21,14 @@ export default function AddBookForm() {
 		validate: valiForm(CreateBookSchema),
 	})
 
+	const queryClient = useQueryClient()
 	const mutation = createMutation(() => ({
 		mutationFn: (data: TCreateBook) =>
 			apiWithAuth.post('books', { json: data }).json(),
-		onSuccess: () => setStore('addBookModalOpen', false),
+		onSuccess() {
+			setStore('addBookModalOpen', false)
+			queryClient.invalidateQueries({ queryKey: ['books'] })
+		},
 	}))
 
 	const handleSubmit = (data: TCreateBook) => {
