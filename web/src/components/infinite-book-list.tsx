@@ -20,8 +20,8 @@ export default function InfiniteBookList(props: IProps) {
 	return (
 		<Switch>
 			<Match when={props.infiniteQuery.isPending}>
-				<ul class='grid grid-cols-1 gap-4 px-4 md:grid-cols-2 md:px-8 lg:grid-cols-3'>
-					<For each={Array.from({ length: 9 })}>
+				<ul class='-mb-8 grid h-[calc(100svh-5.25rem)] grid-cols-1 gap-4 overflow-hidden px-4 md:grid-cols-2 md:px-8 lg:grid-cols-3'>
+					<For each={Array.from({ length: 12 })}>
 						{() => <BookCardSkeleton />}
 					</For>
 				</ul>
