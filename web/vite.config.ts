@@ -1,4 +1,4 @@
-import { fileURLToPath, URL } from 'url'
+import path from 'path'
 import { defineConfig } from 'vite'
 import solid from 'vite-plugin-solid'
 
@@ -8,12 +8,5 @@ export default defineConfig({
 		host: '127.0.0.1',
 		port: 3001,
 	},
-	resolve: {
-		alias: [
-			{
-				find: '@',
-				replacement: fileURLToPath(new URL('./src', import.meta.url)),
-			},
-		],
-	},
+	resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
 })

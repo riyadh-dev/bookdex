@@ -5,14 +5,14 @@ import { setPersistedStore, setStore } from '@/store'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation } from '@tanstack/solid-query'
 import { createEffect } from 'solid-js'
-import { Output, email, minLength, object, string } from 'valibot'
+import * as v from 'valibot'
 
-const SignInFormSchema = object({
-	email: string([email()]),
-	password: string([minLength(8)]),
+const SignInFormSchema = v.object({
+	email: v.pipe(v.string(), v.email()),
+	password: v.pipe(v.string(), v.minLength(8)),
 })
 
-type TSignInForm = Output<typeof SignInFormSchema>
+type TSignInForm = v.InferInput<typeof SignInFormSchema>
 type TSignIn = Omit<TSignInForm, 'confirmPassword' | 'confirmEmail'>
 
 export default function SignInForm() {

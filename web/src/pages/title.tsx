@@ -379,10 +379,10 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 }
 
 const CreateCommentFormSchema = v.object({
-	text: v.string([v.minLength(10)]),
+	text: v.pipe(v.string(), v.minLength(10)),
 })
 
-type TCreateCommentForm = v.Output<typeof CreateCommentFormSchema>
+type TCreateCommentForm = v.InferInput<typeof CreateCommentFormSchema>
 
 function CommentForm(props: { bookId: string }) {
 	const [, { Form, Field }] = createForm<TCreateCommentForm>({

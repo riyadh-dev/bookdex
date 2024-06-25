@@ -7,33 +7,33 @@ import { HTTPError } from 'ky'
 import { createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
-const SignUpFormSchema = v.object(
-	{
-		username: v.string([v.minLength(3)]),
-		email: v.string([v.email()]),
-		confirmEmail: v.string([v.email()]),
-		password: v.string([v.minLength(8)]),
-		confirmPassword: v.string([v.minLength(8)]),
-	},
-	[
-		v.forward(
-			v.custom(
-				(input) => input.password === input.confirmPassword,
-				"Passwords don't match"
-			),
-			['password']
+const SignUpFormSchema = v.pipe(
+	v.object({
+		username: v.pipe(v.string(), v.minLength(3)),
+		email: v.pipe(v.string(), v.email()),
+		confirmEmail: v.pipe(v.string(), v.email()),
+		password: v.pipe(v.string(), v.minLength(8)),
+		confirmPassword: v.pipe(v.string(), v.minLength(8)),
+	}),
+	v.forward(
+		v.partialCheck(
+			[['password'], ['confirmPassword']],
+			(input) => input.password === input.confirmPassword,
+			"Passwords don't match"
 		),
-		v.forward(
-			v.custom(
-				(input) => input.email === input.confirmEmail,
-				"Emails don't match"
-			),
-			['email']
+		['password']
+	),
+	v.forward(
+		v.partialCheck(
+			[['email'], ['confirmEmail']],
+			(input) => input.email === input.confirmEmail,
+			"Emails don't match"
 		),
-	]
+		['email']
+	)
 )
 
-type TSignUpForm = v.Output<typeof SignUpFormSchema>
+type TSignUpForm = v.InferInput<typeof SignUpFormSchema>
 type TSignUp = Omit<TSignUpForm, 'confirmPassword' | 'confirmEmail'>
 
 export default function SignUpForm() {

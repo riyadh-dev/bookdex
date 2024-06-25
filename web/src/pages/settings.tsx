@@ -25,41 +25,39 @@ export default function SettingsPage() {
 	)
 }
 
-const EditCurrentUserFormSchema = v.object(
-	{
-		username: v.string([v.minLength(3)]),
-		email: v.string([v.email()]),
-		confirmEmail: v.string([v.email()]),
-	},
-	[
-		v.forward(
-			v.custom(
-				(input) => input.email === input.confirmEmail,
-				"Emails don't match"
-			),
-			['email']
+const EditCurrentUserFormSchema = v.pipe(
+	v.object({
+		username: v.pipe(v.string(), v.minLength(3)),
+		email: v.pipe(v.string(), v.email()),
+		confirmEmail: v.pipe(v.string(), v.email()),
+	}),
+	v.forward(
+		v.partialCheck(
+			[['email'], ['confirmEmail']],
+			(input) => input.email === input.confirmEmail,
+			"Emails don't match"
 		),
-	]
+		['email']
+	)
 )
 
-const ChangePasswordFormSchema = v.object(
-	{
-		password: v.string([v.minLength(8)]),
-		confirmPassword: v.string([v.minLength(8)]),
-	},
-	[
-		v.forward(
-			v.custom(
-				(input) => input.password === input.confirmPassword,
-				"Passwords don't match"
-			),
-			['password']
+const ChangePasswordFormSchema = v.pipe(
+	v.object({
+		password: v.pipe(v.string(), v.minLength(8)),
+		confirmPassword: v.pipe(v.string(), v.minLength(8)),
+	}),
+	v.forward(
+		v.partialCheck(
+			[['password'], ['confirmPassword']],
+			(input) => input.password === input.confirmPassword,
+			"Passwords don't match"
 		),
-	]
+		['password']
+	)
 )
 
-type TEditCurrentUserForm = v.Output<typeof EditCurrentUserFormSchema>
-type TChangePasswordForm = v.Output<typeof ChangePasswordFormSchema>
+type TEditCurrentUserForm = v.InferInput<typeof EditCurrentUserFormSchema>
+type TChangePasswordForm = v.InferInput<typeof ChangePasswordFormSchema>
 
 type TEditCurrentUserBody = Omit<TEditCurrentUserForm, 'confirmEmail'>
 type TChangePasswordBody = Omit<TChangePasswordForm, 'confirmPassword'>

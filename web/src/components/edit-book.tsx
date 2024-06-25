@@ -5,16 +5,16 @@ import { IBook } from '@/definitions'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { createMutation, useQueryClient } from '@tanstack/solid-query'
 import { FaSolidXmark } from 'solid-icons/fa'
-import { Output, maxLength, minLength, object, string, url } from 'valibot'
+import * as v from 'valibot'
 
-const CreateBookSchema = object({
-	title: string([minLength(5), maxLength(20)]),
-	author: string([minLength(5), maxLength(20)]),
-	cover: string([url()]),
-	synopsis: string([minLength(5), maxLength(750)]),
+const CreateBookSchema = v.object({
+	title: v.pipe(v.string(), v.minLength(5), v.maxLength(20)),
+	author: v.pipe(v.string(), v.minLength(5), v.maxLength(20)),
+	cover: v.pipe(v.string(), v.url()),
+	synopsis: v.pipe(v.string(), v.minLength(5), v.maxLength(750)),
 })
 
-type TCreateBook = Output<typeof CreateBookSchema>
+type TCreateBook = v.InferInput<typeof CreateBookSchema>
 
 export default function EditBookForm(props: {
 	book: IBook
