@@ -1,4 +1,4 @@
-import { persistedStore, setStore, store } from '@/store'
+import { setStore, store } from '@/store'
 import { A, useLocation } from '@solidjs/router'
 import { BiRegularBookmarkAlt, BiRegularHomeAlt2 } from 'solid-icons/bi'
 import { BsPersonGear } from 'solid-icons/bs'
@@ -58,9 +58,7 @@ export default function Sidebar() {
 					<For each={LINKS}>
 						{(link) => (
 							<Show
-								when={
-									persistedStore.currentUser ?? !link.needAuth
-								}
+								when={!!store.currentUser || !link.needAuth}
 								fallback={
 									<button
 										aria-label={link.name}
@@ -125,6 +123,7 @@ export default function Sidebar() {
 				>
 					<Show when={store.sideBarOpen}>
 						<div
+							role='presentation'
 							onClick={() => setStore('sideBarOpen', false)}
 							class='fixed inset-0 z-20 bg-black/60 backdrop-blur-sm'
 						/>
@@ -150,7 +149,7 @@ export default function Sidebar() {
 									{(link) => (
 										<Show
 											when={
-												persistedStore.currentUser ??
+												store.currentUser ??
 												!link.needAuth
 											}
 											fallback={

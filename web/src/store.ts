@@ -1,4 +1,3 @@
-import { makePersisted } from '@solid-primitives/storage'
 import { createStore } from 'solid-js/store'
 import type { ICurrentUser } from './types'
 
@@ -8,11 +7,7 @@ interface IStore {
 	editBookModalOpen: boolean
 	disableAuthActions: boolean
 	sideBarOpen: boolean
-}
-
-interface IPersistedStore {
 	currentUser?: ICurrentUser
-	token?: string
 }
 
 const [store, setStore] = createStore<IStore>({
@@ -21,12 +16,7 @@ const [store, setStore] = createStore<IStore>({
 	editBookModalOpen: false,
 	disableAuthActions: false,
 	sideBarOpen: false,
+	currentUser: undefined,
 })
 
-const [persistedStore, setPersistedStore] = makePersisted(
-	// eslint-disable-next-line solid/reactivity
-	createStore<IPersistedStore>({}),
-	{ name: 'store' }
-)
-
-export { persistedStore, setPersistedStore, setStore, store }
+export { setStore, store }

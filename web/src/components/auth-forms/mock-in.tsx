@@ -1,5 +1,5 @@
 import { api } from '@/config/ky'
-import { setPersistedStore, setStore } from '@/store'
+import { setStore } from '@/store'
 import type { ICurrentUser, ILoginRes } from '@/types'
 import { useMutation, useQuery } from '@tanstack/solid-query'
 import { For, Match, Show, Switch } from 'solid-js'
@@ -17,12 +17,9 @@ export default function MockIn() {
 
 	const mutation = useMutation(() => ({
 		mutationFn: (data: TSignIn) =>
-			api
-				.post('auth/sign-in', { json: data, credentials: 'include' })
-				.json<ILoginRes>(),
-		onSuccess({ token, ...currentUser }) {
-			setPersistedStore('currentUser', currentUser)
-			setPersistedStore('token', token)
+			api.post('auth/sign-in', { json: data }).json<ILoginRes>(),
+		onSuccess(currentUser) {
+			setStore('currentUser', currentUser)
 			setStore('authModalOpen', false)
 		},
 	}))
@@ -47,20 +44,24 @@ export default function MockIn() {
 				<ul class='-mr-5 grid max-h-56 grid-cols-2 gap-2 overflow-y-scroll pr-5'>
 					<For each={query.data}>
 						{(user) => (
-							<li
-								onClick={() => handleMockIn(user.email)}
-								class='flex cursor-pointer items-center gap-x-4 rounded bg-orange-600 px-4 py-2 text-sm font-semibold'
-							>
-								{user.avatar ? (
-									<img
-										src={user.avatar}
-										alt=''
-										class='size-9 rounded-full'
-									/>
-								) : (
-									<div class='h-9 w-9 rounded-full bg-gradient-to-br from-orange-600 to-purple-600' />
-								)}
-								<span class='truncate'>{user.username}</span>
+							<li>
+								<button
+									onClick={() => handleMockIn(user.email)}
+									class='flex cursor-pointer items-center gap-x-4 rounded bg-orange-600 px-4 py-2 text-sm font-semibold'
+								>
+									{user.avatar ? (
+										<img
+											src={user.avatar}
+											alt=''
+											class='size-9 rounded-full'
+										/>
+									) : (
+										<div class='h-9 w-9 rounded-full bg-gradient-to-br from-orange-600 to-purple-600' />
+									)}
+									<span class='truncate'>
+										{user.username}
+									</span>
+								</button>
 							</li>
 						)}
 					</For>

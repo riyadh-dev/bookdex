@@ -1,6 +1,6 @@
 import { TextInput } from '@/components/text-input'
 import { api } from '@/config/ky'
-import { persistedStore, setPersistedStore, setStore } from '@/store'
+import { setStore, store } from '@/store'
 import type { SubmitHandler } from '@modular-forms/solid'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { useNavigate } from '@solidjs/router'
@@ -11,9 +11,7 @@ import * as v from 'valibot'
 
 export default function SettingsPage() {
 	const navigate = useNavigate()
-	if (!persistedStore.token) {
-		navigate('/', { replace: true })
-	}
+	if (!store.currentUser) navigate('/', { replace: true })
 
 	return (
 		<main class='px-8 pt-4'>
@@ -64,7 +62,7 @@ type TEditCurrentUserBody = Omit<TEditCurrentUserForm, 'confirmEmail'>
 type TChangePasswordBody = Omit<TChangePasswordForm, 'confirmPassword'>
 
 function EditCurrentUserForm() {
-	const currentUser = persistedStore.currentUser!
+	const currentUser = store.currentUser!
 
 	const [, { Form, Field }] = createForm<TEditCurrentUserForm>({
 		validate: valiForm(EditCurrentUserFormSchema),
@@ -85,7 +83,7 @@ function EditCurrentUserForm() {
 			}
 		},
 		onSuccess: (_, vars) =>
-			setPersistedStore('currentUser', {
+			setStore('currentUser', {
 				...currentUser,
 				username: vars.username,
 				email: vars.email,
@@ -169,7 +167,7 @@ function EditCurrentUserForm() {
 }
 
 function ChangePasswordForm() {
-	const currentUser = persistedStore.currentUser!
+	const currentUser = store.currentUser!
 
 	const [, { Form, Field }] = createForm<TChangePasswordForm>({
 		validate: valiForm(ChangePasswordFormSchema),

@@ -1,6 +1,6 @@
 import AddBookForm from '@/components/add-book'
 import clickOutside from '@/libs/click-outside'
-import { persistedStore, setPersistedStore, setStore, store } from '@/store'
+import { setStore, store } from '@/store'
 import { A, useNavigate } from '@solidjs/router'
 import { AiOutlineLogin } from 'solid-icons/ai'
 import { CgMenuLeft } from 'solid-icons/cg'
@@ -14,8 +14,7 @@ export default function TopBar() {
 
 	const navigate = useNavigate()
 	function handleLogout() {
-		setPersistedStore('token', undefined)
-		setPersistedStore('currentUser', undefined)
+		setStore('currentUser', undefined)
 		navigate('/')
 	}
 
@@ -43,7 +42,7 @@ export default function TopBar() {
 			</button>
 
 			<Switch>
-				<Match when={!persistedStore.currentUser}>
+				<Match when={!store.currentUser}>
 					<div class='flex items-center gap-x-4'>
 						<button
 							onClick={() => setStore('authModalOpen', true)}
@@ -59,32 +58,28 @@ export default function TopBar() {
 						/>
 					</div>
 				</Match>
-				<Match when={persistedStore.currentUser}>
+				<Match when={store.currentUser}>
 					<div class='relative'>
 						<button
 							onClick={() => setIsPopoverOpen(true)}
 							class='flex items-center gap-x-3'
 						>
 							<Switch>
-								<Match
-									when={persistedStore.currentUser?.avatar}
-								>
+								<Match when={store.currentUser?.avatar}>
 									<img
-										src={persistedStore.currentUser!.avatar}
+										src={store.currentUser!.avatar}
 										alt='avatar'
 										class='h-9 w-9 rounded-full'
 									/>
 								</Match>
-								<Match
-									when={!persistedStore.currentUser?.avatar}
-								>
+								<Match when={!store.currentUser?.avatar}>
 									<div class='h-9 w-9 rounded-full bg-gradient-to-br from-orange-600 to-purple-600' />
 								</Match>
 							</Switch>
 							<h1 class='text-lg font-semibold capitalize'>
 								{
 									//@ts-expect-error - checked on match
-									persistedStore.currentUser.username
+									store.currentUser.username
 								}
 							</h1>
 						</button>
@@ -97,20 +92,21 @@ export default function TopBar() {
 
 						<Show when={isPopoverOpen()}>
 							<div
-								onClick={() => setIsPopoverOpen(false)}
 								use:clickOutside={() => setIsPopoverOpen(false)}
 								class='absolute top-14 -right-6 z-10 w-max rounded bg-neutral-800 py-4 font-semibold'
 							>
 								<button
-									onClick={() =>
+									onClick={() => {
+										setIsPopoverOpen(false)
 										setStore('addBookModalOpen', true)
-									}
+									}}
 									class='block px-6 py-2 text-left hover:bg-orange-600'
 								>
 									Add New Book
 								</button>
 								<A
 									href='/settings'
+									onClick={() => setIsPopoverOpen(false)}
 									class='block w-full px-6 py-2 text-left hover:bg-orange-600'
 								>
 									Edit Profile

@@ -1,6 +1,6 @@
 import InfiniteBookList from '@/components/infinite-book-list'
 import { api } from '@/config/ky'
-import { persistedStore } from '@/store'
+import { store } from '@/store'
 import type { TPaginatedBooks } from '@/types'
 import { useNavigate } from '@solidjs/router'
 import { useInfiniteQuery } from '@tanstack/solid-query'
@@ -11,7 +11,7 @@ export default function MyEntriesPage() {
 		queryFn: ({ pageParam }) =>
 			api
 				.get(
-					`books/submitter/${persistedStore.currentUser?.id}?limit=9&offset=${pageParam}`
+					`books/submitter/${store.currentUser?.id}?limit=9&offset=${pageParam}`
 				)
 				.json<TPaginatedBooks>(),
 		initialPageParam: 0,
@@ -19,13 +19,10 @@ export default function MyEntriesPage() {
 			const nextOffset = offset + limit
 			return nextOffset < total ? nextOffset : undefined
 		},
-		enabled: !!persistedStore.currentUser,
 	}))
 
 	const navigate = useNavigate()
-	if (!persistedStore.token) {
-		navigate('/', { replace: true })
-	}
+	if (!store.currentUser) navigate('/', { replace: true })
 
 	return (
 		<main class='pt-4'>

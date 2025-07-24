@@ -18,7 +18,8 @@ export default [
 		...solid,
 		languageOptions: {
 			parserOptions: {
-				project: ['./tsconfig.json', './tsconfig.node.json'],
+				projectService: true,
+				tsconfigRootDir: import.meta.dirname,
 			},
 		},
 	},
@@ -32,5 +33,5 @@ export default [
 		},
 	},
 	prettier,
-	{ ignores: ['dist'] },
+	{ ignores: ['dist', 'eslint.config.mjs'] },
 ]

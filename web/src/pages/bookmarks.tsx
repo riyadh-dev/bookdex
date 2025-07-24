@@ -1,6 +1,6 @@
 import InfiniteBookList from '@/components/infinite-book-list'
 import { api } from '@/config/ky'
-import { persistedStore } from '@/store'
+import { store } from '@/store'
 import type { TPaginatedBooks } from '@/types'
 import { useNavigate } from '@solidjs/router'
 import { useInfiniteQuery } from '@tanstack/solid-query'
@@ -20,9 +20,7 @@ export default function BookmarksPage() {
 	}))
 
 	const navigate = useNavigate()
-	if (!persistedStore.token) {
-		navigate('/', { replace: true })
-	}
+	if (!store.currentUser) navigate('/', { replace: true })
 
 	return (
 		<main class='pt-4'>

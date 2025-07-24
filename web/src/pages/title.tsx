@@ -3,7 +3,7 @@ import Modal from '@/components/modal'
 import { TextArea } from '@/components/text-area'
 import { api } from '@/config/ky'
 import clickOutside from '@/libs/click-outside'
-import { persistedStore, setStore } from '@/store'
+import { setStore, store } from '@/store'
 import type { IBook, IComment, IRating } from '@/types'
 import type { SubmitHandler } from '@modular-forms/solid'
 import { createForm, valiForm } from '@modular-forms/solid'
@@ -52,7 +52,7 @@ export default function TitlePage() {
 
 	createEffect(() => {
 		const bookmarkerIds = bookQuery.data?.bookmarkerIds
-		const userId = persistedStore.currentUser?.id
+		const userId = store.currentUser?.id
 
 		if (bookmarkerIds && userId)
 			setIsBookmarked(bookmarkerIds.includes(userId))
@@ -63,7 +63,7 @@ export default function TitlePage() {
 	const ratingQuery = useQuery(() => ({
 		queryKey: ['ratings', params.id],
 		queryFn: () => api.get(`books/${params.id}/ratings`).json<IRating>(),
-		enabled: !!persistedStore.currentUser,
+		enabled: !!store.currentUser,
 	}))
 
 	const navigate = useNavigate()
@@ -122,7 +122,7 @@ export default function TitlePage() {
 							<div class='mt-auto flex flex-wrap gap-2 font-semibold max-md:pt-4'>
 								<button
 									onClick={() =>
-										!persistedStore.currentUser
+										!store.currentUser
 											? setStore('authModalOpen', true)
 											: isBookmarked()
 												? unbookmarkMutation.mutate()
@@ -141,7 +141,7 @@ export default function TitlePage() {
 									{isBookmarked() ? 'Unbookmark' : 'Bookmark'}
 								</button>
 
-								<Show when={persistedStore.currentUser}>
+								<Show when={store.currentUser}>
 									<Switch>
 										<Match
 											when={
@@ -171,7 +171,7 @@ export default function TitlePage() {
 								<Show
 									when={
 										bookQuery.data?.submitterId ===
-										persistedStore.currentUser?.id
+										store.currentUser?.id
 									}
 								>
 									<button
@@ -198,7 +198,7 @@ export default function TitlePage() {
 								<Show
 									when={
 										bookQuery.data?.submitterId ===
-										persistedStore.currentUser?.id
+										store.currentUser?.id
 									}
 								>
 									<button
@@ -346,7 +346,6 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 
 			<Show when={isPopoverOpen()}>
 				<div
-					onClick={() => setIsPopoverOpen(false)}
 					use:clickOutside={() => setIsPopoverOpen(false)}
 					class='absolute right-1/2 z-10 mt-2 w-max translate-x-1/2 rounded bg-neutral-600 font-semibold'
 				>
@@ -354,11 +353,13 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 						{(item) => (
 							<button
 								disabled={isPending}
-								onClick={() =>
-									props.rating
-										? patchMutation.mutate(item.value)
-										: postMutation.mutate(item.value)
-								}
+								onClick={() => {
+									;(props.rating
+										? patchMutation
+										: postMutation
+									).mutate(item.value)
+									setIsPopoverOpen(false)
+								}}
 								class='block w-full px-4 py-2 text-left transition-colors hover:bg-orange-600'
 							>
 								{item.label}
@@ -405,27 +406,27 @@ function CommentForm(props: { bookId: string }) {
 		mutation.mutate(body)
 
 	return (
-		<Show when={persistedStore.currentUser}>
+		<Show when={store.currentUser}>
 			<Form
 				onSubmit={handleSubmit}
 				class='space-y-4 rounded bg-neutral-700 p-4 text-white'
 			>
 				<div class='flex items-center gap-x-3'>
 					<Switch>
-						<Match when={persistedStore.currentUser!.avatar}>
+						<Match when={store.currentUser!.avatar}>
 							<img
-								src={persistedStore.currentUser!.avatar}
+								src={store.currentUser!.avatar}
 								alt='avatar'
 								class='h-9 w-9 rounded-full'
 							/>
 						</Match>
-						<Match when={!persistedStore.currentUser!.avatar}>
+						<Match when={!store.currentUser!.avatar}>
 							<div class='h-9 w-9 rounded-full bg-gradient-to-br from-orange-600 to-purple-600' />
 						</Match>
 					</Switch>
 					<div class='leading-tight'>
 						<p class='font-bold capitalize'>
-							{persistedStore.currentUser?.username}
+							{store.currentUser?.username}
 						</p>
 						<p class='text-sm'>{dayjs().format('MMMM DD, YYYY')}</p>
 					</div>
@@ -545,12 +546,7 @@ function Comment(props: { comment: IComment; bookId: string }) {
 					</div>
 				</div>
 
-				<Show
-					when={
-						persistedStore.currentUser?.id ===
-						props.comment.author.id
-					}
-				>
+				<Show when={store.currentUser?.id === props.comment.author.id}>
 					<div class='ml-auto flex gap-x-4 self-start'>
 						<button
 							type='button'
