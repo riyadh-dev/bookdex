@@ -1,5 +1,5 @@
 import { TextInput } from '@/components/text-input'
-import { api } from '@/config/ky'
+import api from '@/libs/api'
 import { setStore, store } from '@/store'
 import type { SubmitHandler } from '@modular-forms/solid'
 import { createForm, valiForm } from '@modular-forms/solid'
@@ -76,7 +76,7 @@ function EditCurrentUserForm() {
 	const [isEmailDuplicated, setIsEmailDuplicated] = createSignal(false)
 	const mutation = useMutation(() => ({
 		mutationFn: (body: TEditCurrentUserBody) =>
-			api.patch(`users/${currentUser.id}`, { json: body }).text(),
+			api.patch(`users/${currentUser.id}`, { json: body }),
 		onError(error) {
 			if ((error as HTTPError).response.status === 409) {
 				setIsEmailDuplicated(true)
@@ -175,7 +175,7 @@ function ChangePasswordForm() {
 
 	const mutation = useMutation(() => ({
 		mutationFn: (body: TChangePasswordBody) =>
-			api.patch(`users/${currentUser.id}`, { json: body }).text(),
+			api.patch(`users/${currentUser.id}`, { json: body }),
 	}))
 
 	const handleSubmit: SubmitHandler<TChangePasswordForm> = ({ password }) => {

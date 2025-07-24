@@ -1,7 +1,7 @@
 import { Route, Router as SolidRouter } from '@solidjs/router'
 import { useQuery } from '@tanstack/solid-query'
 import { lazy, Show } from 'solid-js'
-import { api } from './config/ky'
+import api from './libs/api'
 import { setStore } from './store'
 import type { ICurrentUser } from './types'
 

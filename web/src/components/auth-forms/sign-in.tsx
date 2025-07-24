@@ -1,5 +1,5 @@
 import { TextInput } from '@/components/text-input'
-import { api } from '@/config/ky'
+import api from '@/libs/api'
 import { setStore } from '@/store'
 import type { ICurrentUser } from '@/types'
 import { createForm, valiForm } from '@modular-forms/solid'

@@ -1,5 +1,5 @@
 import AddBookForm from '@/components/add-book'
-import { api } from '@/config/ky'
+import api from '@/libs/api'
 import clickOutside from '@/libs/click-outside'
 import { setStore, store } from '@/store'
 import { A, useNavigate } from '@solidjs/router'

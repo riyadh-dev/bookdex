@@ -1,5 +1,5 @@
 import InfiniteBookList from '@/components/infinite-book-list'
-import { api } from '@/config/ky'
+import api from '@/libs/api'
 import { store } from '@/store'
 import type { TPaginatedBooks } from '@/types'
 import { useNavigate } from '@solidjs/router'

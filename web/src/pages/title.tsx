@@ -1,7 +1,7 @@
 import EditBookForm from '@/components/edit-book'
 import Modal from '@/components/modal'
 import { TextArea } from '@/components/text-area'
-import { api } from '@/config/ky'
+import api from '@/libs/api'
 import clickOutside from '@/libs/click-outside'
 import { setStore, store } from '@/store'
 import type { IBook, IComment, IRating } from '@/types'
@@ -70,7 +70,7 @@ export default function TitlePage() {
 
 	const navigate = useNavigate()
 	const deleteMutation = useMutation(() => ({
-		mutationFn: () => api.delete(`books/${bookId}`).text(),
+		mutationFn: () => api.delete(`books/${bookId}`),
 		async onSuccess() {
 			await queryClient.invalidateQueries({ queryKey: ['books'] })
 			navigate('/', { replace: true })
@@ -309,16 +309,14 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 
 	const patchMutation = useMutation(() => ({
 		mutationFn: (rating: number) =>
-			api
-				.patch(`books/${props.bookId}/ratings`, {
-					json: { value: rating },
-				})
-				.text(),
+			api.patch(`books/${props.bookId}/ratings`, {
+				json: { value: rating },
+			}),
 		onSuccess,
 	}))
 
 	const deleteMutation = useMutation(() => ({
-		mutationFn: () => api.delete(`books/${props.bookId}/ratings`).text(),
+		mutationFn: () => api.delete(`books/${props.bookId}/ratings`),
 		onSuccess,
 	}))
 
@@ -514,12 +512,12 @@ function Comment(props: { comment: IComment; bookId: string }) {
 	}
 	const updateMutation = useMutation(() => ({
 		mutationFn: (body: TCreateCommentForm) =>
-			api.patch(`comments/${props.comment.id}`, { json: body }).text(),
+			api.patch(`comments/${props.comment.id}`, { json: body }),
 		onSuccess,
 	}))
 
 	const deleteMutation = useMutation(() => ({
-		mutationFn: () => api.delete(`comments/${props.comment.id}`).text(),
+		mutationFn: () => api.delete(`comments/${props.comment.id}`),
 		onSuccess,
 	}))
 

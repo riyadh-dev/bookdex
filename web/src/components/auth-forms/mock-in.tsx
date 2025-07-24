@@ -1,4 +1,4 @@
-import { api } from '@/config/ky'
+import api from '@/libs/api'
 import { setStore } from '@/store'
 import type { ICurrentUser } from '@/types'
 import { useMutation, useQuery } from '@tanstack/solid-query'

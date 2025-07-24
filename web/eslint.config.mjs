@@ -34,5 +34,5 @@ export default [
 		},
 	},
 	prettier,
-	{ ignores: ['dist', 'eslint.config.mjs'] },
+	{ ignores: ['dist', 'eslint.config.mjs', 'prettier.config.mjs'] },
 ]
