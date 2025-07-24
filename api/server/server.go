@@ -7,7 +7,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/encryptcookie"
+	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -51,15 +51,10 @@ func newFiberApp(
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
 	}))
-	app.Use(encryptcookie.New(encryptcookie.Config{
-		Key: env.COOKIE_SECRET,
-	}))
+
+	app.Use(healthcheck.New())
 
 	api := app.Group("/api")
-
-	api.Get("/", func(ctx *fiber.Ctx) error {
-		return ctx.SendString("Heath Check OK")
-	})
 
 	authRouter := api.Group("/auth")
 	authRouter.Post("/sign-up", authHandlers.SignUp)

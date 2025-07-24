@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -97,23 +99,31 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 
 	token := jwt.New(jwt.SigningMethodHS256)
 
-	exp := time.Now().Add(time.Hour * 72).Unix()
+	exp := time.Now().
+		Add(time.Hour * time.Duration(a.env.AUTH_EXP_HOUR))
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["id"] = user.ID.Hex()
-	claims["exp"] = exp
+	claims["exp"] = exp.Unix()
 
 	t, err := token.SignedString([]byte(a.env.JWT_SECRET))
 	if err != nil {
 		return ctx.SendStatus(fiber.StatusInternalServerError)
 	}
 
+	cookie := fmt.Sprintf(
+		"%s=%s; Expires=%s; Path=/; HttpOnly; Secure; SameSite=None; Partitioned",
+		"JWT",
+		url.QueryEscape(t),
+		exp.Format(time.RFC1123),
+	)
+
+	ctx.Set("Set-Cookie", cookie)
+
 	return ctx.JSON(fiber.Map{
 		"id":       user.ID.Hex(),
 		"username": user.Username,
 		"email":    user.Email,
 		"avatar":   user.Avatar,
-		"exp":      exp,
-		"token":    t,
 	})
 }

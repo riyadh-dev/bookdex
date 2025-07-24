@@ -21,6 +21,7 @@ func (a *Auth) Protected() func(*fiber.Ctx) error {
 	return jwtware.New(jwtware.Config{
 		SigningKey:   jwtware.SigningKey{Key: []byte(a.env.JWT_SECRET)},
 		ErrorHandler: jwtError,
+		TokenLookup:  "cookie:JWT",
 	})
 }
 
@@ -28,6 +29,7 @@ func (a *Auth) IsBookOwner() func(*fiber.Ctx) error {
 	return jwtware.New(jwtware.Config{
 		SigningKey:   jwtware.SigningKey{Key: []byte(a.env.JWT_SECRET)},
 		ErrorHandler: jwtError,
+		TokenLookup:  "cookie:JWT",
 		SuccessHandler: func(ctx *fiber.Ctx) error {
 			bookId := ctx.Params("id")
 			claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)

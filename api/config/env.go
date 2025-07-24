@@ -17,7 +17,6 @@ type Env struct {
 	DB_NAME     string
 
 	JWT_SECRET    string
-	COOKIE_SECRET string
 	AUTH_EXP_HOUR int
 
 	CLIENT_URL string
@@ -40,7 +39,6 @@ func newEnv() *Env {
 		DB_NAME:     getEnvVar("DB_NAME"),
 
 		JWT_SECRET:    getEnvVar("JWT_SECRET"),
-		COOKIE_SECRET: getEnvVar("COOKIE_SECRET"),
 		AUTH_EXP_HOUR: getIntEnvVar("AUTH_EXP_HOUR"),
 
 		CLIENT_URL: getEnvVar("CLIENT_URL"),
