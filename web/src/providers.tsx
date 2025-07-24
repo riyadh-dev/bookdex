@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/solid-query'
-import { JSXElement } from 'solid-js'
+import type { JSXElement } from 'solid-js'
 
 const queryClient = new QueryClient()
 

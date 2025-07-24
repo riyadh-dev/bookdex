@@ -1,12 +1,12 @@
 import InfiniteBookList from '@/components/infinite-book-list'
 import { api } from '@/config/ky'
-import { TPaginatedBooks } from '@/definitions'
 import { persistedStore } from '@/store'
+import type { TPaginatedBooks } from '@/types'
 import { useNavigate } from '@solidjs/router'
-import { createInfiniteQuery } from '@tanstack/solid-query'
+import { useInfiniteQuery } from '@tanstack/solid-query'
 
 export default function MyEntriesPage() {
-	const infiniteQuery = createInfiniteQuery(() => ({
+	const infiniteQuery = useInfiniteQuery(() => ({
 		queryKey: ['books', 'currentUser'],
 		queryFn: ({ pageParam }) =>
 			api

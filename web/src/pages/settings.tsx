@@ -1,10 +1,11 @@
 import { TextInput } from '@/components/text-input'
-import { apiWithAuth } from '@/config/ky'
+import { api } from '@/config/ky'
 import { persistedStore, setPersistedStore, setStore } from '@/store'
-import { SubmitHandler, createForm, valiForm } from '@modular-forms/solid'
+import type { SubmitHandler } from '@modular-forms/solid'
+import { createForm, valiForm } from '@modular-forms/solid'
 import { useNavigate } from '@solidjs/router'
-import { createMutation } from '@tanstack/solid-query'
-import { HTTPError } from 'ky'
+import { useMutation } from '@tanstack/solid-query'
+import type { HTTPError } from 'ky'
 import { createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
@@ -75,9 +76,9 @@ function EditCurrentUserForm() {
 	})
 
 	const [isEmailDuplicated, setIsEmailDuplicated] = createSignal(false)
-	const mutation = createMutation(() => ({
+	const mutation = useMutation(() => ({
 		mutationFn: (body: TEditCurrentUserBody) =>
-			apiWithAuth.patch(`users/${currentUser.id}`, { json: body }).text(),
+			api.patch(`users/${currentUser.id}`, { json: body }).text(),
 		onError(error) {
 			if ((error as HTTPError).response.status === 409) {
 				setIsEmailDuplicated(true)
@@ -105,7 +106,7 @@ function EditCurrentUserForm() {
 	return (
 		<Form
 			onSubmit={handleSubmit}
-			class='min-w-96 max-w-xl flex-1 space-y-6 rounded bg-neutral-700 px-8 py-4'
+			class='max-w-xl min-w-96 flex-1 space-y-6 rounded bg-neutral-700 px-8 py-4'
 		>
 			<h2 class='text-xl font-semibold'>Edit your Info</h2>
 			<Field name='username'>
@@ -174,9 +175,9 @@ function ChangePasswordForm() {
 		validate: valiForm(ChangePasswordFormSchema),
 	})
 
-	const mutation = createMutation(() => ({
+	const mutation = useMutation(() => ({
 		mutationFn: (body: TChangePasswordBody) =>
-			apiWithAuth.patch(`users/${currentUser.id}`, { json: body }).text(),
+			api.patch(`users/${currentUser.id}`, { json: body }).text(),
 	}))
 
 	const handleSubmit: SubmitHandler<TChangePasswordForm> = ({ password }) => {
@@ -190,7 +191,7 @@ function ChangePasswordForm() {
 	return (
 		<Form
 			onSubmit={handleSubmit}
-			class='flex min-w-96 max-w-xl flex-1 flex-col gap-y-6 rounded bg-neutral-700 px-8 py-4'
+			class='flex max-w-xl min-w-96 flex-1 flex-col gap-y-6 rounded bg-neutral-700 px-8 py-4'
 		>
 			<h2 class='text-xl font-semibold'>Change Password</h2>
 			<Field name='password'>

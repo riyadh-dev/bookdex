@@ -1,6 +1,6 @@
 import { makePersisted } from '@solid-primitives/storage'
 import { createStore } from 'solid-js/store'
-import { ICurrentUser } from './definitions'
+import type { ICurrentUser } from './types'
 
 interface IStore {
 	authModalOpen: boolean

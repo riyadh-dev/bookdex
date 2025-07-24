@@ -1,18 +1,14 @@
 import EditBookForm from '@/components/edit-book'
 import Modal from '@/components/modal'
 import { TextArea } from '@/components/text-area'
-import { api, apiWithAuth } from '@/config/ky'
-import { IBook, IComment, IRating } from '@/definitions'
+import { api } from '@/config/ky'
 import clickOutside from '@/libs/click-outside'
 import { persistedStore, setStore } from '@/store'
-import { SubmitHandler, createForm, valiForm } from '@modular-forms/solid'
+import type { IBook, IComment, IRating } from '@/types'
+import type { SubmitHandler } from '@modular-forms/solid'
+import { createForm, valiForm } from '@modular-forms/solid'
 import { useNavigate, useParams } from '@solidjs/router'
-import {
-	createMutation,
-	createQuery,
-	useQueryClient,
-} from '@tanstack/solid-query'
-import clsx from 'clsx'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/solid-query'
 import dayjs from 'dayjs'
 import { AiOutlineStar } from 'solid-icons/ai'
 import { BiRegularComment } from 'solid-icons/bi'
@@ -26,25 +22,29 @@ import * as v from 'valibot'
 export default function TitlePage() {
 	const params = useParams()
 
-	const bookQuery = createQuery(() => ({
+	const bookQuery = useQuery(() => ({
 		queryKey: ['book', params.id],
 		queryFn: () => api.get(`books/${params.id}`).json<IBook>(),
 	}))
 
 	const queryClient = useQueryClient()
 
-	function onSuccess() {
-		queryClient.invalidateQueries({ queryKey: ['book', params.id] })
-		queryClient.invalidateQueries({ queryKey: ['books', 'bookmarked'] })
+	async function onSuccess() {
+		await Promise.all([
+			queryClient.invalidateQueries({ queryKey: ['book', params.id] }),
+			queryClient.invalidateQueries({
+				queryKey: ['books', 'bookmarked'],
+			}),
+		])
 	}
 
-	const bookmarkMutation = createMutation(() => ({
-		mutationFn: () => apiWithAuth.patch(`books/${params.id}/bookmark`),
+	const bookmarkMutation = useMutation(() => ({
+		mutationFn: () => api.patch(`books/${params.id}/bookmark`),
 		onSuccess,
 	}))
 
-	const unbookmarkMutation = createMutation(() => ({
-		mutationFn: () => apiWithAuth.patch(`books/${params.id}/unbookmark`),
+	const unbookmarkMutation = useMutation(() => ({
+		mutationFn: () => api.patch(`books/${params.id}/unbookmark`),
 		onSuccess,
 	}))
 
@@ -60,18 +60,17 @@ export default function TitlePage() {
 
 	const [editDialogOpen, setEditDialogOpen] = createSignal(false)
 
-	const ratingQuery = createQuery(() => ({
+	const ratingQuery = useQuery(() => ({
 		queryKey: ['ratings', params.id],
-		queryFn: () =>
-			apiWithAuth.get(`books/${params.id}/ratings`).json<IRating>(),
+		queryFn: () => api.get(`books/${params.id}/ratings`).json<IRating>(),
 		enabled: !!persistedStore.currentUser,
 	}))
 
 	const navigate = useNavigate()
-	const deleteMutation = createMutation(() => ({
-		mutationFn: () => apiWithAuth.delete(`books/${params.id}`).text(),
-		onSuccess() {
-			queryClient.invalidateQueries({ queryKey: ['books'] })
+	const deleteMutation = useMutation(() => ({
+		mutationFn: () => api.delete(`books/${params.id}`).text(),
+		async onSuccess() {
+			await queryClient.invalidateQueries({ queryKey: ['books'] })
 			navigate('/', { replace: true })
 		},
 	}))
@@ -287,13 +286,15 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 	const [isPopoverOpen, setIsPopoverOpen] = createSignal(false)
 
 	const queryClient = useQueryClient()
-	function onSuccess() {
-		queryClient.invalidateQueries({ queryKey: ['ratings', props.bookId] })
+	async function onSuccess() {
+		await queryClient.invalidateQueries({
+			queryKey: ['ratings', props.bookId],
+		})
 	}
 
-	const postMutation = createMutation(() => ({
+	const postMutation = useMutation(() => ({
 		mutationFn: (rating: number) =>
-			apiWithAuth
+			api
 				.post(`books/${props.bookId}/ratings`, {
 					json: { value: rating },
 				})
@@ -301,9 +302,9 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 		onSuccess,
 	}))
 
-	const patchMutation = createMutation(() => ({
+	const patchMutation = useMutation(() => ({
 		mutationFn: (rating: number) =>
-			apiWithAuth
+			api
 				.patch(`books/${props.bookId}/ratings`, {
 					json: { value: rating },
 				})
@@ -311,12 +312,12 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 		onSuccess,
 	}))
 
-	const deleteMutation = createMutation(() => ({
-		mutationFn: () =>
-			apiWithAuth.delete(`books/${props.bookId}/ratings`).text(),
+	const deleteMutation = useMutation(() => ({
+		mutationFn: () => api.delete(`books/${props.bookId}/ratings`).text(),
 		onSuccess,
 	}))
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 	clickOutside //preserve import
 
 	const isPending =
@@ -329,14 +330,15 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 			<button
 				disabled={isPending}
 				onClick={() => setIsPopoverOpen(true)}
-				class={clsx(
-					props.rating ? 'bg-orange-600' : 'bg-neutral-600',
-					'flex items-center gap-x-2 rounded px-3 py-3 disabled:opacity-75 disabled:grayscale'
-				)}
+				classList={{
+					'bg-orange-600': !!props.rating,
+					'bg-neutral-600': !props.rating,
+					'flex items-center gap-x-2 rounded px-3 py-3 disabled:opacity-75 disabled:grayscale': true,
+				}}
 			>
 				<AiOutlineStar size={24} />
 				{props.rating && (
-					<span class='font-semibold leading-none'>
+					<span class='leading-none font-semibold'>
 						{props.rating}
 					</span>
 				)}
@@ -390,11 +392,9 @@ function CommentForm(props: { bookId: string }) {
 	})
 
 	const queryClient = useQueryClient()
-	const mutation = createMutation(() => ({
+	const mutation = useMutation(() => ({
 		mutationFn: (body: TCreateCommentForm) =>
-			apiWithAuth
-				.post(`books/${props.bookId}/comments`, { json: body })
-				.json(),
+			api.post(`books/${props.bookId}/comments`, { json: body }).json(),
 		onSuccess: () =>
 			queryClient.invalidateQueries({
 				queryKey: ['comments', props.bookId],
@@ -457,7 +457,7 @@ function CommentForm(props: { bookId: string }) {
 }
 
 function Comments(props: { bookId: string }) {
-	const query = createQuery(() => ({
+	const query = useQuery(() => ({
 		queryKey: ['comments', props.bookId],
 		queryFn: () =>
 			api.get(`books/${props.bookId}/comments`).json<IComment[]>(),
@@ -479,7 +479,7 @@ function Comments(props: { bookId: string }) {
 
 			<Match when={query.isSuccess}>
 				<ul class='grid grid-cols-1 gap-4 md:grid-cols-2'>
-					<For each={query.data!}>
+					<For each={query.data}>
 						{(comment) => (
 							<Comment comment={comment} bookId={props.bookId} />
 						)}
@@ -500,23 +500,20 @@ function Comment(props: { comment: IComment; bookId: string }) {
 	})
 
 	const queryClient = useQueryClient()
-	function onSuccess() {
+	async function onSuccess() {
 		setEditable(false)
-		queryClient.invalidateQueries({
+		await queryClient.invalidateQueries({
 			queryKey: ['comments', props.bookId],
 		})
 	}
-	const updateMutation = createMutation(() => ({
+	const updateMutation = useMutation(() => ({
 		mutationFn: (body: TCreateCommentForm) =>
-			apiWithAuth
-				.patch(`comments/${props.comment.id}`, { json: body })
-				.text(),
+			api.patch(`comments/${props.comment.id}`, { json: body }).text(),
 		onSuccess,
 	}))
 
-	const deleteMutation = createMutation(() => ({
-		mutationFn: () =>
-			apiWithAuth.delete(`comments/${props.comment.id}`).text(),
+	const deleteMutation = useMutation(() => ({
+		mutationFn: () => api.delete(`comments/${props.comment.id}`).text(),
 		onSuccess,
 	}))
 

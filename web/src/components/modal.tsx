@@ -1,4 +1,5 @@
-import { Component, Show, createEffect } from 'solid-js'
+import type { Component } from 'solid-js'
+import { Show, createEffect } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { Transition } from 'solid-transition-group'
 
@@ -10,12 +11,9 @@ interface IProps {
 
 export default function Modal(props: IProps) {
 	createEffect(() => {
-		const html = document.querySelector('html')
-		if (html) {
-			props.isOpen
-				? html.classList.add('overflow-hidden')
-				: html.classList.remove('overflow-hidden')
-		}
+		document
+			.querySelector('html')
+			?.classList[props.isOpen ? 'add' : 'remove']('overflow-hidden')
 	})
 
 	return (

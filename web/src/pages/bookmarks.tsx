@@ -1,15 +1,15 @@
 import InfiniteBookList from '@/components/infinite-book-list'
-import { apiWithAuth } from '@/config/ky'
-import { TPaginatedBooks } from '@/definitions'
+import { api } from '@/config/ky'
 import { persistedStore } from '@/store'
+import type { TPaginatedBooks } from '@/types'
 import { useNavigate } from '@solidjs/router'
-import { createInfiniteQuery } from '@tanstack/solid-query'
+import { useInfiniteQuery } from '@tanstack/solid-query'
 
 export default function BookmarksPage() {
-	const infiniteQuery = createInfiniteQuery(() => ({
+	const infiniteQuery = useInfiniteQuery(() => ({
 		queryKey: ['books', 'bookmarked'],
 		queryFn: ({ pageParam }) =>
-			apiWithAuth
+			api
 				.get(`books/bookmarked?limit=9&offset=${pageParam}`)
 				.json<TPaginatedBooks>(),
 		initialPageParam: 0,

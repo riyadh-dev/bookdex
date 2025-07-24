@@ -1,9 +1,9 @@
 import { TextInput } from '@/components/text-input'
 import { api } from '@/config/ky'
-import { ILoginRes } from '@/definitions'
 import { setPersistedStore, setStore } from '@/store'
+import type { ILoginRes } from '@/types'
 import { createForm, valiForm } from '@modular-forms/solid'
-import { createMutation } from '@tanstack/solid-query'
+import { useMutation } from '@tanstack/solid-query'
 import { createEffect } from 'solid-js'
 import * as v from 'valibot'
 
@@ -20,7 +20,7 @@ export default function SignInForm() {
 		validate: valiForm(SignInFormSchema),
 	})
 
-	const mutation = createMutation(() => ({
+	const mutation = useMutation(() => ({
 		mutationFn: (data: TSignIn) =>
 			api
 				.post('auth/sign-in', { json: data, credentials: 'include' })

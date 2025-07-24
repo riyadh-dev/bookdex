@@ -1,7 +1,7 @@
 import { api } from '@/config/ky'
-import { ICurrentUser, ILoginRes } from '@/definitions'
 import { setPersistedStore, setStore } from '@/store'
-import { createMutation, createQuery } from '@tanstack/solid-query'
+import type { ICurrentUser, ILoginRes } from '@/types'
+import { useMutation, useQuery } from '@tanstack/solid-query'
 import { For, Match, Show, Switch } from 'solid-js'
 
 interface TSignIn {
@@ -10,12 +10,12 @@ interface TSignIn {
 }
 
 export default function MockIn() {
-	const query = createQuery(() => ({
+	const query = useQuery(() => ({
 		queryKey: ['mockedUsers'],
 		queryFn: () => api.get('users/mocked').json<ICurrentUser[]>(),
 	}))
 
-	const mutation = createMutation(() => ({
+	const mutation = useMutation(() => ({
 		mutationFn: (data: TSignIn) =>
 			api
 				.post('auth/sign-in', { json: data, credentials: 'include' })
@@ -45,7 +45,7 @@ export default function MockIn() {
 			</Match>
 			<Match when={query.isSuccess}>
 				<ul class='-mr-5 grid max-h-56 grid-cols-2 gap-2 overflow-y-scroll pr-5'>
-					<For each={query.data!}>
+					<For each={query.data}>
 						{(user) => (
 							<li
 								onClick={() => handleMockIn(user.email)}

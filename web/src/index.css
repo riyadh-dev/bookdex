@@ -1,9 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-:root {
-	font-family: Poppins, sans-serif;
+@theme {
+	--font-sans: Poppins, sans-serif;
 }
 
 @media (max-width: 768px) {

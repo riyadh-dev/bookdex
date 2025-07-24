@@ -1,9 +1,9 @@
 import { TextArea } from '@/components/text-area'
 import { TextInput } from '@/components/text-input'
-import { apiWithAuth } from '@/config/ky'
-import { IBook } from '@/definitions'
+import { api } from '@/config/ky'
+import type { IBook } from '@/types'
 import { createForm, valiForm } from '@modular-forms/solid'
-import { createMutation, useQueryClient } from '@tanstack/solid-query'
+import { useMutation, useQueryClient } from '@tanstack/solid-query'
 import { FaSolidXmark } from 'solid-icons/fa'
 import * as v from 'valibot'
 
@@ -34,20 +34,20 @@ export default function EditBookForm(props: {
 
 	const queryClient = useQueryClient()
 
-	const mutation = createMutation(() => ({
+	const mutation = useMutation(() => ({
 		mutationFn: (data: TCreateBook) =>
-			apiWithAuth.patch(`books/${props.book.id}`, { json: data }).text(),
-		onSuccess() {
+			api.patch(`books/${props.book.id}`, { json: data }).text(),
+		async onSuccess() {
 			props.close()
-			queryClient.invalidateQueries({ queryKey: ['book', props.book.id] })
+			await queryClient.invalidateQueries({
+				queryKey: ['book', props.book.id],
+			})
 		},
 	}))
 
 	const handleSubmit = (data: TCreateBook) => {
 		mutation.mutate(data)
 	}
-
-	Form
 
 	return (
 		<div class='mx-auto max-w-xl rounded bg-neutral-800 p-6'>

@@ -1,9 +1,10 @@
 import { TextInput } from '@/components/text-input'
 import { api } from '@/config/ky'
 import { setStore } from '@/store'
-import { SubmitHandler, createForm, valiForm } from '@modular-forms/solid'
-import { createMutation } from '@tanstack/solid-query'
-import { HTTPError } from 'ky'
+import type { SubmitHandler } from '@modular-forms/solid'
+import { createForm, valiForm } from '@modular-forms/solid'
+import { useMutation } from '@tanstack/solid-query'
+import type { HTTPError } from 'ky'
 import { createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
@@ -42,7 +43,7 @@ export default function SignUpForm() {
 	})
 
 	const [isEmailDuplicated, setIsEmailDuplicated] = createSignal(false)
-	const mutation = createMutation(() => ({
+	const mutation = useMutation(() => ({
 		mutationFn: (data: TSignUp) =>
 			api.post('auth/sign-up', { json: data }).json(),
 		onError(error) {

@@ -1,6 +1,5 @@
 import { persistedStore, setStore, store } from '@/store'
 import { A, useLocation } from '@solidjs/router'
-import { clsx } from 'clsx'
 import { BiRegularBookmarkAlt, BiRegularHomeAlt2 } from 'solid-icons/bi'
 import { BsPersonGear } from 'solid-icons/bs'
 import { CgMenuLeft } from 'solid-icons/cg'
@@ -60,7 +59,7 @@ export default function Sidebar() {
 						{(link) => (
 							<Show
 								when={
-									persistedStore.currentUser || !link.needAuth
+									persistedStore.currentUser ?? !link.needAuth
 								}
 								fallback={
 									<button
@@ -68,12 +67,11 @@ export default function Sidebar() {
 										onClick={() =>
 											setStore('authModalOpen', true)
 										}
-										class={clsx(
-											expanded()
-												? 'w-full gap-x-4'
-												: 'justify-center',
-											'flex items-center rounded-full fill-white p-4 hover:bg-orange-600'
-										)}
+										classList={{
+											'w-full gap-x-4': expanded(),
+											'justify-center': !expanded(),
+											'flex items-center rounded-full fill-white p-4 hover:bg-orange-600': true,
+										}}
 									>
 										<link.Icon />
 										<Show when={expanded()}>
@@ -86,16 +84,15 @@ export default function Sidebar() {
 							>
 								<A
 									href={link.path}
-									class={clsx(
-										pathname() === link.path &&
-											'bg-orange-600',
-										!(pathname() === link.path) &&
-											'hover:bg-orange-600',
-										expanded()
-											? 'w-full gap-x-4'
-											: 'justify-center',
-										'flex items-center rounded-full fill-white p-4'
-									)}
+									classList={{
+										'bg-orange-600':
+											pathname() === link.path,
+										'hover:bg-orange-600':
+											pathname() !== link.path,
+										'w-full gap-x-4': expanded(),
+										'justify-center': !expanded(),
+										'flex items-center rounded-full fill-white p-4': true,
+									}}
 								>
 									<link.Icon />
 									<Show when={expanded()}>
@@ -142,7 +139,7 @@ export default function Sidebar() {
 					exitToClass='-translate-x-[11.75rem]'
 				>
 					<Show when={store.sideBarOpen}>
-						<aside class='`md:hidden fixed left-0 top-0 z-30 m-auto flex h-svh w-fit flex-col gap-y-12 bg-neutral-800 px-8 py-4'>
+						<aside class='`md:hidden fixed top-0 left-0 z-30 m-auto flex h-svh w-fit flex-col gap-y-12 bg-neutral-800 px-8 py-4'>
 							<A href='/' class='flex items-center gap-x-4 px-4'>
 								<ImBook class='text-3xl' />
 								<p class='text-lg font-semibold'>BookDex</p>
@@ -153,7 +150,7 @@ export default function Sidebar() {
 									{(link) => (
 										<Show
 											when={
-												persistedStore.currentUser ||
+												persistedStore.currentUser ??
 												!link.needAuth
 											}
 											fallback={
@@ -177,14 +174,15 @@ export default function Sidebar() {
 										>
 											<A
 												href={link.path}
-												class={clsx(
-													pathname() === link.path &&
-														'bg-orange-600',
-													!(
-														pathname() === link.path
-													) && 'hover:bg-orange-600',
-													'flex w-full items-center gap-x-4 rounded-full fill-white p-4'
-												)}
+												classList={{
+													'bg-orange-600':
+														pathname() ===
+														link.path,
+													'hover:bg-orange-600':
+														pathname() !==
+														link.path,
+													'flex w-full items-center gap-x-4 rounded-full fill-white p-4': true,
+												}}
 											>
 												<link.Icon />
 

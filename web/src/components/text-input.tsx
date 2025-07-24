@@ -1,8 +1,8 @@
-import clsx from 'clsx'
 import { BiSolidErrorCircle } from 'solid-icons/bi'
-import { JSX, splitProps } from 'solid-js'
+import type { JSX } from 'solid-js'
+import { splitProps } from 'solid-js'
 
-type TextInputProps = {
+interface TextInputProps {
 	name: string
 	type: 'text' | 'email' | 'tel' | 'password' | 'url' | 'date'
 	label?: string
@@ -11,7 +11,7 @@ type TextInputProps = {
 	error: string
 	required?: boolean
 	disabled?: boolean
-	// eslint-disable-next-line no-unused-vars
+
 	ref: (el: HTMLInputElement) => void
 	onInput: JSX.EventHandler<HTMLInputElement, InputEvent>
 	onChange: JSX.EventHandler<HTMLInputElement, Event>
@@ -30,15 +30,15 @@ export function TextInput(props: TextInputProps) {
 			<input
 				{...inputProps}
 				id={props.name}
-				value={props.value || ''}
+				value={props.value ?? ''}
 				aria-invalid={!!props.error}
 				aria-errormessage={`${props.name}-error`}
-				class={clsx(
-					props.error
-						? 'border-rose-600 bg-rose-400/5 text-red-400 placeholder:text-red-400/75 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500'
-						: 'border-gray-400 bg-transparent',
-					'h-12 w-full rounded border border-white px-4 py-2'
-				)}
+				classList={{
+					'border-rose-600 bg-rose-400/5 text-red-400 placeholder:text-red-400/75 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500':
+						!!props.error,
+					'border-gray-400 bg-transparent': !props.error,
+					'h-12 w-full rounded border border-white px-4 py-2': true,
+				}}
 			/>
 			{props.error && (
 				<div

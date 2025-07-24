@@ -19,6 +19,7 @@ export default function TopBar() {
 		navigate('/')
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 	clickOutside //preserve import
 
 	return (
@@ -98,7 +99,7 @@ export default function TopBar() {
 							<div
 								onClick={() => setIsPopoverOpen(false)}
 								use:clickOutside={() => setIsPopoverOpen(false)}
-								class='absolute -right-6 top-14 z-10 w-max rounded bg-neutral-800 py-4 font-semibold'
+								class='absolute top-14 -right-6 z-10 w-max rounded bg-neutral-800 py-4 font-semibold'
 							>
 								<button
 									onClick={() =>

@@ -1,8 +1,8 @@
-import clsx from 'clsx'
 import { BiSolidErrorCircle } from 'solid-icons/bi'
-import { JSX, splitProps } from 'solid-js'
+import type { JSX } from 'solid-js'
+import { splitProps } from 'solid-js'
 
-type TextInputProps = {
+interface TextInputProps {
 	name: string
 	label?: string
 	placeholder?: string
@@ -11,7 +11,7 @@ type TextInputProps = {
 	error: string
 	required?: boolean
 	disabled?: boolean
-	// eslint-disable-next-line no-unused-vars
+
 	ref: (el: HTMLTextAreaElement) => void
 	onInput: JSX.EventHandler<HTMLTextAreaElement, InputEvent>
 	onChange: JSX.EventHandler<HTMLTextAreaElement, Event>
@@ -30,16 +30,16 @@ export function TextArea(props: TextInputProps) {
 			<textarea
 				{...inputProps}
 				id={props.name}
-				rows={props.rows || 3}
-				value={props.value || ''}
+				rows={props.rows ?? 3}
+				value={props.value ?? ''}
 				aria-invalid={!!props.error}
 				aria-errormessage={`${props.name}-error`}
-				class={clsx(
-					props.error
-						? 'border-rose-600 bg-rose-400/5 text-red-400 placeholder:text-red-400/75 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500'
-						: 'border-gray-400 bg-transparent',
-					'w-full shrink-0 rounded border p-4'
-				)}
+				classList={{
+					'border-rose-600 bg-rose-400/5 text-red-400 placeholder:text-red-400/75 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 focus:outline-none':
+						!!props.error,
+					'border-gray-400 bg-transparent': !props.error,
+					'w-full shrink-0 rounded border p-4': true,
+				}}
 			/>
 			{props.error && (
 				<div

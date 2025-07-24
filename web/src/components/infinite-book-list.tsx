@@ -1,12 +1,15 @@
-import { TPaginatedBooks } from '@/definitions'
+import type { TPaginatedBooks } from '@/types'
 import { createIntersectionObserver } from '@solid-primitives/intersection-observer'
-import { CreateInfiniteQueryResult, InfiniteData } from '@tanstack/solid-query'
+import type {
+	InfiniteData,
+	UseInfiniteQueryResult,
+} from '@tanstack/solid-query'
 import { For, Match, Switch, createSignal } from 'solid-js'
 import { BookCard } from './book-card'
 import BookCardSkeleton from './book-card-skeleton'
 
 interface IProps {
-	infiniteQuery: CreateInfiniteQueryResult<InfiniteData<TPaginatedBooks>>
+	infiniteQuery: UseInfiniteQueryResult<InfiniteData<TPaginatedBooks>>
 }
 
 export default function InfiniteBookList(props: IProps) {
@@ -14,7 +17,7 @@ export default function InfiniteBookList(props: IProps) {
 
 	createIntersectionObserver(intersectionEls, (entries) => {
 		if (entries[0].isIntersecting && props.infiniteQuery.hasNextPage)
-			props.infiniteQuery.fetchNextPage()
+			void props.infiniteQuery.fetchNextPage()
 	})
 
 	return (
