@@ -4,7 +4,14 @@
 	--font-sans: Poppins, sans-serif;
 }
 
-@media (max-width: 768px) {
+@layer base {
+	button:not(:disabled),
+	[role='button']:not(:disabled) {
+		cursor: pointer;
+	}
+}
+
+@media (max-width: 48rem) {
 	html {
 		font-size: 14px;
 	}

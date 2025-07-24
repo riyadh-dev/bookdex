@@ -3,11 +3,6 @@ export interface ICurrentUser {
 	email: string
 	username: string
 	avatar?: string
-	exp: number
-}
-
-export interface ILoginRes extends ICurrentUser {
-	token: string
 }
 
 export interface IBook {

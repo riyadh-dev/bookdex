@@ -82,11 +82,11 @@ function EditCurrentUserForm() {
 				setIsEmailDuplicated(true)
 			}
 		},
-		onSuccess: (_, vars) =>
+		onSuccess: (_, { email, username }) =>
 			setStore('currentUser', {
 				...currentUser,
-				username: vars.username,
-				email: vars.email,
+				username,
+				email,
 			}),
 	}))
 

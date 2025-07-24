@@ -40,7 +40,7 @@ export default function EditBookForm(props: {
 		async onSuccess() {
 			props.close()
 			await queryClient.invalidateQueries({
-				queryKey: ['book', props.book.id],
+				queryKey: ['books', { id: props.book.id }],
 			})
 		},
 	}))

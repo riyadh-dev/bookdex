@@ -1,7 +1,7 @@
 import { TextInput } from '@/components/text-input'
 import { api } from '@/config/ky'
 import { setStore } from '@/store'
-import type { ILoginRes } from '@/types'
+import type { ICurrentUser } from '@/types'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { useMutation } from '@tanstack/solid-query'
 import { createEffect } from 'solid-js'
@@ -22,7 +22,7 @@ export default function SignInForm() {
 
 	const mutation = useMutation(() => ({
 		mutationFn: (data: TSignIn) =>
-			api.post('auth/sign-in', { json: data }).json<ILoginRes>(),
+			api.post('auth/sign-in', { json: data }).json<ICurrentUser>(),
 		onSuccess(currentUser) {
 			setStore('currentUser', currentUser)
 			setStore('authModalOpen', false)

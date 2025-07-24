@@ -1,7 +1,9 @@
 import AddBookForm from '@/components/add-book'
+import { api } from '@/config/ky'
 import clickOutside from '@/libs/click-outside'
 import { setStore, store } from '@/store'
 import { A, useNavigate } from '@solidjs/router'
+import { useMutation, useQueryClient } from '@tanstack/solid-query'
 import { AiOutlineLogin } from 'solid-icons/ai'
 import { CgMenuLeft } from 'solid-icons/cg'
 import { HiOutlineMagnifyingGlass } from 'solid-icons/hi'
@@ -13,10 +15,15 @@ export default function TopBar() {
 	const [isPopoverOpen, setIsPopoverOpen] = createSignal(false)
 
 	const navigate = useNavigate()
-	function handleLogout() {
-		setStore('currentUser', undefined)
-		navigate('/')
-	}
+	const queryClient = useQueryClient()
+	const logout = useMutation(() => ({
+		mutationFn: () => api.post('auth/sign-out'),
+		onSuccess() {
+			queryClient.clear()
+			setStore('currentUser', undefined)
+			navigate('/')
+		},
+	}))
 
 	// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 	clickOutside //preserve import
@@ -112,7 +119,8 @@ export default function TopBar() {
 									Edit Profile
 								</A>
 								<button
-									onClick={handleLogout}
+									onClick={() => logout.mutate()}
+									disabled={logout.isPending}
 									class='block w-full px-6 py-2 text-left hover:bg-orange-600'
 								>
 									Logout

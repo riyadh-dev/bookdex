@@ -20,18 +20,20 @@ import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
 
 export default function TitlePage() {
-	const params = useParams()
+	const bookId = useParams().id
 
 	const bookQuery = useQuery(() => ({
-		queryKey: ['book', params.id],
-		queryFn: () => api.get(`books/${params.id}`).json<IBook>(),
+		queryKey: ['books', { id: bookId }],
+		queryFn: () => api.get(`books/${bookId}`).json<IBook>(),
 	}))
 
 	const queryClient = useQueryClient()
 
 	async function onSuccess() {
 		await Promise.all([
-			queryClient.invalidateQueries({ queryKey: ['book', params.id] }),
+			queryClient.invalidateQueries({
+				queryKey: ['books', { id: bookId }],
+			}),
 			queryClient.invalidateQueries({
 				queryKey: ['books', 'bookmarked'],
 			}),
@@ -39,12 +41,12 @@ export default function TitlePage() {
 	}
 
 	const bookmarkMutation = useMutation(() => ({
-		mutationFn: () => api.patch(`books/${params.id}/bookmark`),
+		mutationFn: () => api.patch(`books/${bookId}/bookmark`),
 		onSuccess,
 	}))
 
 	const unbookmarkMutation = useMutation(() => ({
-		mutationFn: () => api.patch(`books/${params.id}/unbookmark`),
+		mutationFn: () => api.patch(`books/${bookId}/unbookmark`),
 		onSuccess,
 	}))
 
@@ -61,14 +63,14 @@ export default function TitlePage() {
 	const [editDialogOpen, setEditDialogOpen] = createSignal(false)
 
 	const ratingQuery = useQuery(() => ({
-		queryKey: ['ratings', params.id],
-		queryFn: () => api.get(`books/${params.id}/ratings`).json<IRating>(),
+		queryKey: ['ratings', { bookId }],
+		queryFn: () => api.get(`books/${bookId}/ratings`).json<IRating>(),
 		enabled: !!store.currentUser,
 	}))
 
 	const navigate = useNavigate()
 	const deleteMutation = useMutation(() => ({
-		mutationFn: () => api.delete(`books/${params.id}`).text(),
+		mutationFn: () => api.delete(`books/${bookId}`).text(),
 		async onSuccess() {
 			await queryClient.invalidateQueries({ queryKey: ['books'] })
 			navigate('/', { replace: true })
@@ -161,7 +163,7 @@ export default function TitlePage() {
 										</Match>
 										<Match when={ratingQuery.isSuccess}>
 											<RatingButton
-												bookId={params.id}
+												bookId={bookId}
 												rating={ratingQuery.data?.value}
 											/>
 										</Match>
@@ -247,8 +249,8 @@ export default function TitlePage() {
 
 					<div class='space-y-4 px-8'>
 						<h2 class='text-lg font-bold'>Comments</h2>
-						<CommentForm bookId={params.id} />
-						<Comments bookId={params.id} />
+						<CommentForm bookId={bookId} />
+						<Comments bookId={bookId} />
 					</div>
 
 					<Show when={bookQuery.data}>
@@ -287,18 +289,21 @@ function RatingButton(props: { bookId: string; rating?: number }) {
 
 	const queryClient = useQueryClient()
 	async function onSuccess() {
-		await queryClient.invalidateQueries({
-			queryKey: ['ratings', props.bookId],
-		})
+		await Promise.all([
+			queryClient.invalidateQueries({
+				queryKey: ['books', { id: props.bookId }],
+			}),
+			queryClient.invalidateQueries({
+				queryKey: ['ratings', { bookId: props.bookId }],
+			}),
+		])
 	}
 
 	const postMutation = useMutation(() => ({
 		mutationFn: (rating: number) =>
-			api
-				.post(`books/${props.bookId}/ratings`, {
-					json: { value: rating },
-				})
-				.text(),
+			api.post(`books/${props.bookId}/ratings`, {
+				json: { value: rating },
+			}),
 		onSuccess,
 	}))
 
@@ -398,7 +403,7 @@ function CommentForm(props: { bookId: string }) {
 			api.post(`books/${props.bookId}/comments`, { json: body }).json(),
 		onSuccess: () =>
 			queryClient.invalidateQueries({
-				queryKey: ['comments', props.bookId],
+				queryKey: ['comments', { booksId: props.bookId }],
 			}),
 	}))
 
@@ -459,7 +464,7 @@ function CommentForm(props: { bookId: string }) {
 
 function Comments(props: { bookId: string }) {
 	const query = useQuery(() => ({
-		queryKey: ['comments', props.bookId],
+		queryKey: ['comments', { bookId: props.bookId }],
 		queryFn: () =>
 			api.get(`books/${props.bookId}/comments`).json<IComment[]>(),
 	}))
@@ -504,7 +509,7 @@ function Comment(props: { comment: IComment; bookId: string }) {
 	async function onSuccess() {
 		setEditable(false)
 		await queryClient.invalidateQueries({
-			queryKey: ['comments', props.bookId],
+			queryKey: ['comments', { bookId: props.bookId }],
 		})
 	}
 	const updateMutation = useMutation(() => ({
