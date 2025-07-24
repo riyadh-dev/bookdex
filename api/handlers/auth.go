@@ -108,7 +108,7 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 
 	t, err := token.SignedString([]byte(a.env.JWT_SECRET))
 	if err != nil {
-		return ctx.SendStatus(fiber.StatusInternalServerError)
+		return fiber.ErrInternalServerError
 	}
 
 	cookie := fmt.Sprintf(
@@ -119,6 +119,28 @@ func (a *Auth) SignIn(ctx *fiber.Ctx) error {
 	)
 
 	ctx.Set("Set-Cookie", cookie)
+
+	return ctx.JSON(fiber.Map{
+		"id":       user.ID.Hex(),
+		"username": user.Username,
+		"email":    user.Email,
+		"avatar":   user.Avatar,
+	})
+}
+
+func (a *Auth) SignOut(ctx *fiber.Ctx) error {
+	ctx.ClearCookie("JWT")
+	return ctx.SendStatus(fiber.StatusOK)
+}
+
+func (a *Auth) Me(ctx *fiber.Ctx) error {
+	claims := ctx.Locals("user").(*jwt.Token).Claims.(jwt.MapClaims)
+	userId := claims["id"].(string)
+
+	user, err := a.usersStorage.GetById(userId)
+	if err != nil {
+		return fiber.ErrInternalServerError
+	}
 
 	return ctx.JSON(fiber.Map{
 		"id":       user.ID.Hex(),

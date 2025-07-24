@@ -59,6 +59,12 @@ func newFiberApp(
 	authRouter := api.Group("/auth")
 	authRouter.Post("/sign-up", authHandlers.SignUp)
 	authRouter.Post("/sign-in", authHandlers.SignIn)
+	authRouter.Post(
+		"/sign-out",
+		authMiddleware.Protected(),
+		authHandlers.SignOut,
+	)
+	authRouter.Get("/me", authMiddleware.Protected(), authHandlers.Me)
 
 	usersRouter := api.Group("/users")
 	usersRouter.Get("/mocked", usersHandlers.GetAllMocked)

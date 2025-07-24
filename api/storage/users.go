@@ -88,8 +88,13 @@ func (u *Users) Update(id string, input *models.UpdateUserInput) error {
 }
 
 func (u *Users) GetById(id string) (*models.User, error) {
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
 	user := new(models.User)
-	err := u.dbColl.FindOne(context.Background(), bson.M{"_id": id}).
+	err = u.dbColl.FindOne(context.Background(), bson.M{"_id": objectId}).
 		Decode(user)
 	if err != nil {
 		return nil, err
