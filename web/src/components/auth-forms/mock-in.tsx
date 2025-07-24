@@ -50,7 +50,7 @@ export default function MockIn() {
 							<li>
 								<button
 									onClick={() => handleMockIn(user.email)}
-									class='flex cursor-pointer items-center gap-x-4 rounded bg-orange-600 px-4 py-2 text-sm font-semibold'
+									class='flex w-full cursor-pointer items-center gap-x-4 rounded bg-orange-600 px-4 py-2 text-sm font-semibold'
 								>
 									{user.avatar ? (
 										<img

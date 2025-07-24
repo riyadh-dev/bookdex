@@ -7,6 +7,7 @@ import api from '@/libs/api'
 import type { ICurrentUser } from '@/types'
 
 import { setStore } from '@/store'
+import { CgSpinnerTwo } from 'solid-icons/cg'
 
 const RootLayout = lazy(() => import('./layouts/root'))
 const BookmarksPage = lazy(() => import('./pages/bookmarks'))
@@ -35,7 +36,11 @@ export default function Router() {
 	return (
 		<Show
 			when={!currentUserQuery.isPending}
-			fallback={<div>Loading...</div>}
+			fallback={
+				<div class='flex h-screen items-center justify-center'>
+					<CgSpinnerTwo class='animate-spin content-center text-7xl text-teal-600' />
+				</div>
+			}
 		>
 			<SolidRouter>
 				<Route path='/' component={RootLayout}>
