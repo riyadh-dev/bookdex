@@ -1,8 +1,11 @@
-import api from '@/libs/api'
-import { setStore } from '@/store'
-import type { ICurrentUser } from '@/types'
 import { useMutation, useQuery } from '@tanstack/solid-query'
 import { For, Match, Show, Switch } from 'solid-js'
+
+import api from '@/libs/api'
+
+import type { ICurrentUser } from '@/types'
+
+import { setStore } from '@/store'
 
 interface TSignIn {
 	email: string

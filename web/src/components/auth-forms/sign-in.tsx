@@ -1,11 +1,15 @@
-import { TextInput } from '@/components/text-input'
-import api from '@/libs/api'
-import { setStore } from '@/store'
-import type { ICurrentUser } from '@/types'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { useMutation } from '@tanstack/solid-query'
 import { createEffect } from 'solid-js'
 import * as v from 'valibot'
+
+import { TextInput } from '@/components/text-input'
+
+import api from '@/libs/api'
+
+import type { ICurrentUser } from '@/types'
+
+import { setStore } from '@/store'
 
 const SignInFormSchema = v.object({
 	email: v.pipe(v.string(), v.email()),

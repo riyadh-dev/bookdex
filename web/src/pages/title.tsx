@@ -1,10 +1,3 @@
-import EditBookForm from '@/components/edit-book'
-import Modal from '@/components/modal'
-import { TextArea } from '@/components/text-area'
-import api from '@/libs/api'
-import clickOutside from '@/libs/click-outside'
-import { setStore, store } from '@/store'
-import type { IBook, IComment, IRating } from '@/types'
 import type { SubmitHandler } from '@modular-forms/solid'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { useNavigate, useParams } from '@solidjs/router'
@@ -18,6 +11,17 @@ import { ImSpinner8 } from 'solid-icons/im'
 import { RiSystemDeleteBin2Line } from 'solid-icons/ri'
 import { For, Match, Show, Switch, createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
+
+import EditBookForm from '@/components/edit-book'
+import Modal from '@/components/modal'
+import { TextArea } from '@/components/text-area'
+
+import api from '@/libs/api'
+import clickOutside from '@/libs/click-outside'
+
+import type { IBook, IComment, IRating } from '@/types'
+
+import { setStore, store } from '@/store'
 
 export default function TitlePage() {
 	const bookId = useParams().id

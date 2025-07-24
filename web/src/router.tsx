@@ -1,9 +1,12 @@
 import { Route, Router as SolidRouter } from '@solidjs/router'
 import { useQuery } from '@tanstack/solid-query'
-import { lazy, Show } from 'solid-js'
-import api from './libs/api'
-import { setStore } from './store'
-import type { ICurrentUser } from './types'
+import { Show, lazy } from 'solid-js'
+
+import api from '@/libs/api'
+
+import type { ICurrentUser } from '@/types'
+
+import { setStore } from '@/store'
 
 const RootLayout = lazy(() => import('./layouts/root'))
 const BookmarksPage = lazy(() => import('./pages/bookmarks'))

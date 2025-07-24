@@ -1,6 +1,8 @@
-import { setStore, store } from '@/store'
 import { FaSolidXmark } from 'solid-icons/fa'
 import { Match, Show, Switch, createSignal } from 'solid-js'
+
+import { setStore, store } from '@/store'
+
 import MockIn from './mock-in'
 import SignInForm from './sign-in'
 import SignUpForm from './sign-up'

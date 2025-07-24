@@ -1,6 +1,3 @@
-import { TextInput } from '@/components/text-input'
-import api from '@/libs/api'
-import { setStore, store } from '@/store'
 import type { SubmitHandler } from '@modular-forms/solid'
 import { createForm, valiForm } from '@modular-forms/solid'
 import { useNavigate } from '@solidjs/router'
@@ -8,6 +5,12 @@ import { useMutation } from '@tanstack/solid-query'
 import type { HTTPError } from 'ky'
 import { createEffect, createSignal } from 'solid-js'
 import * as v from 'valibot'
+
+import { TextInput } from '@/components/text-input'
+
+import api from '@/libs/api'
+
+import { setStore, store } from '@/store'
 
 export default function SettingsPage() {
 	const navigate = useNavigate()

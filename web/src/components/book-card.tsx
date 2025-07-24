@@ -1,8 +1,9 @@
-import type { IBook } from '@/types'
 import { A } from '@solidjs/router'
 import { AiOutlineStar } from 'solid-icons/ai'
 import { BiRegularComment } from 'solid-icons/bi'
 import { FiBookmark } from 'solid-icons/fi'
+
+import type { IBook } from '@/types'
 
 export function BookCard(props: { book: IBook }) {
 	return (

@@ -23,6 +23,7 @@ export default {
 		'^@/layouts/(.*)?$',
 		'^@/components/(.*)?$',
 		'^@/libs/(.*)?$',
+		'^@/types',
 		'^@/(.*)?$',
 		'^[./]',
 	],

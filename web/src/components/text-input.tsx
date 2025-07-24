@@ -34,7 +34,7 @@ export function TextInput(props: TextInputProps) {
 				aria-invalid={!!props.error}
 				aria-errormessage={`${props.name}-error`}
 				classList={{
-					'border-rose-600 bg-rose-400/5 text-red-400 placeholder:text-red-400/75 focus:border-rose-500 focus:outline-none focus:ring-1 focus:ring-rose-500':
+					'border-rose-600 bg-rose-400/5 text-red-400 placeholder:text-red-400/75 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 focus:outline-none':
 						!!props.error,
 					'border-gray-400 bg-transparent': !props.error,
 					'h-12 w-full rounded border border-white px-4 py-2': true,

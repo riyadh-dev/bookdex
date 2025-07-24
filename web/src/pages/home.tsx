@@ -1,7 +1,10 @@
-import InfiniteBookList from '@/components/infinite-book-list'
-import api from '@/libs/api'
-import type { TPaginatedBooks } from '@/types'
 import { useInfiniteQuery } from '@tanstack/solid-query'
+
+import InfiniteBookList from '@/components/infinite-book-list'
+
+import api from '@/libs/api'
+
+import type { TPaginatedBooks } from '@/types'
 
 export default function HomePage() {
 	const infiniteQuery = useInfiniteQuery(() => ({

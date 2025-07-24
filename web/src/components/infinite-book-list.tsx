@@ -1,10 +1,12 @@
-import type { TPaginatedBooks } from '@/types'
 import { createIntersectionObserver } from '@solid-primitives/intersection-observer'
 import type {
 	InfiniteData,
 	UseInfiniteQueryResult,
 } from '@tanstack/solid-query'
 import { For, Match, Switch, createSignal } from 'solid-js'
+
+import type { TPaginatedBooks } from '@/types'
+
 import { BookCard } from './book-card'
 import BookCardSkeleton from './book-card-skeleton'
 

@@ -1,4 +1,5 @@
 import { createStore } from 'solid-js/store'
+
 import type { ICurrentUser } from './types'
 
 interface IStore {

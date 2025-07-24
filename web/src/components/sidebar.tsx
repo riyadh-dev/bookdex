@@ -1,4 +1,3 @@
-import { setStore, store } from '@/store'
 import { A, useLocation } from '@solidjs/router'
 import { BiRegularBookmarkAlt, BiRegularHomeAlt2 } from 'solid-icons/bi'
 import { BsPersonGear } from 'solid-icons/bs'
@@ -8,6 +7,8 @@ import { RiDocumentFileList3Line } from 'solid-icons/ri'
 import { For, Show, createEffect, createMemo, createSignal, on } from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { Transition } from 'solid-transition-group'
+
+import { setStore, store } from '@/store'
 
 const LINKS = [
 	{
