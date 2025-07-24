@@ -33,8 +33,9 @@ func newFiberApp(
 	ratingsHandlers *handlers.Ratings,
 ) *fiber.App {
 	app := fiber.New(fiber.Config{
-		JSONEncoder: sonic.Marshal,
-		JSONDecoder: sonic.Unmarshal,
+		JSONEncoder:           sonic.Marshal,
+		JSONDecoder:           sonic.Unmarshal,
+		DisableStartupMessage: env.IS_PROD,
 	})
 
 	app.Use(logger.New())
